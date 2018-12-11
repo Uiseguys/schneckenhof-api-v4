@@ -1,0 +1,9 @@
+{
+  "name": "mydb",
+  "connector": "mysql",
+  "host": "localhost",
+  "port": 3306,
+  "database": "localwinedb",
+  "user": "root",
+  "password": "123@abc"
+}
