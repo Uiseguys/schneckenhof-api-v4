@@ -21,6 +21,8 @@ npm i -g @loopback/cli
 
  1. install MySQL on your computer system
 
+    https://dev.mysql.com/doc/refman/5.7/en/osx-installation-pkg.html
+
  2.  Here you need mysql username and password as I have putted
  in scr/datasources/db.datasource.json  but according to your system mysql configuration you need to change the user and password
  variable values.
