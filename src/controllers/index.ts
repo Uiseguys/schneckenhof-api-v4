@@ -15,3 +15,4 @@ export * from './role-mapping.controller';
 export * from './template.controller';
 export * from './resources.controller';
 export * from './order.controller';
+export * from './payment.controller';

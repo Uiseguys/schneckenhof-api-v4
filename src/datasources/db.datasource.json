@@ -1,9 +1,42 @@
 {
-  "name": "mydb",
-  "connector": "mysql",
-  "host": "localhost",
-  "port": 3306,
-  "database": "localwinedb",
-  "user": "root",
-  "password": "123@abc"
+  "database":{
+    "name": "mydb",
+    "connector": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "database": "testmysl",
+    "user": "root",
+    "password": "123@abc"
+  },
+  "storage": {
+    "name": "storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "nameConflict": "makeUnique",
+    "root": "./server/storage",
+    "container": "schneckenhof-dev"
+  },
+  "paypaldev":{
+    "mode": "sandbox",
+    "client_id":
+      "AYSEcGNHsQ2reZChT7Wxg9-AiAdkPbVywEndCMJEMBZBT7mWt6WeZSCIXx6-y6w9dekbgDiDoYwRnObP",
+    "client_secret":
+      "EGQZJQxdB6Sv1b0VvD7GnsAC3d4IT56ahuba4X0aFXMzduv06sLa9-fLPW3TTCFcYDGYGrDcl4x-6DZx",
+    "return_url": "http://localhost:4000/api/payment/execute",
+    "cancel_url": "http://192.168.1.105/checkout",
+    "success_url": "http://192.168.1.105/danke",
+    "fail_url": "http://192.168.1.105/"
+  },
+  "paypalprod":{
+    "mode": "sandbox",
+    "client_id":
+      "AYSEcGNHsQ2reZChT7Wxg9-AiAdkPbVywEndCMJEMBZBT7mWt6WeZSCIXx6-y6w9dekbgDiDoYwRnObP",
+    "client_secret":
+      "EGQZJQxdB6Sv1b0VvD7GnsAC3d4IT56ahuba4X0aFXMzduv06sLa9-fLPW3TTCFcYDGYGrDcl4x-6DZx",
+    "return_url":
+      "https://dev-schneckenhof-api.herokuapp.com/api/payment/execute",
+    "cancel_url": "https://dev-schneckenhof-frontend.herokuapp.com/checkout",
+    "success_url": "https://dev-schneckenhof-frontend.herokuapp.com/danke",
+    "fail_url": "https://dev-schneckenhof-frontend.herokuapp.com/"
+  }
 }

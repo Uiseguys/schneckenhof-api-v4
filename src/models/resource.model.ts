@@ -30,7 +30,9 @@ export class Resource extends Entity {
   })
   type?: string;
 
+  
   constructor(data?: Partial<Resource>) {
     super(data);
   }
+
 }

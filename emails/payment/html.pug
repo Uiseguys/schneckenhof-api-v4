@@ -1,0 +1,21 @@
+p #{realname} has just paid for following on paypal:
+
+ul
+  each val in items
+    li= val.quantity + 'X ' + val.name
+
+p Invoice ID: #{invoiceId}
+
+p Amount: #{total}
+
+p Street: #{street}
+
+p Zip: #{zip}
+
+p City: #{city}
+
+p Phone: #{phone}
+
+p Message: #{message}
+
+p Email: #{email}

@@ -1,4 +1,4 @@
-import { Entity, model, property } from '@loopback/repository';
+import { Entity, model, property, RepositoryMixin, RepositoryMixinDoc } from '@loopback/repository';
 
 @model()
 export class Order extends Entity {
@@ -37,12 +37,12 @@ export class Order extends Entity {
     type: 'date',
     required: true,
   })
-  created: string;
+  created: Date;
 
   @property({
     type: 'date',
   })
-  completed?: string;
+  completed?: Date;
 
   constructor(data?: Partial<Order>) {
     super(data);

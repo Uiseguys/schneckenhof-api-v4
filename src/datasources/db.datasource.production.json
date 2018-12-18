@@ -1,6 +1,0 @@
-{
-  "name": "mydb",
-  "connector": "postgresql",
-  "url": "postgres://vwqoemcsxofiwf:e75dd311452ae40aede74845f9aa242f50c7bfd85aa3c5a36ea4780191922468@ec2-54-247-125-137.eu-west-1.compute.amazonaws.com:5432/d6aldqifkj300h",
-  "ssl": true
-}

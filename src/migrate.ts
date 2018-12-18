@@ -24,7 +24,6 @@ export async function dsMigrate(app: WeingutApi) {
 }
 
 export async function dsUpdate(app: WeingutApi) {
-
   const ds = await app.get<DataSource>('datasources.db');
   const userRepo = await app.getRepository(UserRepository);
   const settRepo = await app.getRepository(SettingRepository);
@@ -41,3 +40,22 @@ export async function dsUpdate(app: WeingutApi) {
   await ds.autoupdate();
 }
 
+
+/*
+export * from './user.repository';
+export * from './setting.repository';
+export * from './wine.repository';
+export * from './package.repository';
+export * from './roles.repository';
+export * from './acl.repository';
+export * from './logs.repository';
+export * from './role-mapping.repository';
+export * from './template.repository';
+export * from './resource.repository';
+export * from './order.repository';
+
+
+
+
+
+*/

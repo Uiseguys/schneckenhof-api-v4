@@ -14,3 +14,4 @@ export * from './role-mapping.model';
 export * from './template.model';
 export * from './resource.model';
 export * from './order.model';
+export * from './payment.model';
