@@ -35,7 +35,7 @@ export class SettingController {
       return await this.settingRepository.create(setting);
     }
    */
-  @get('/setting/count', {
+  @get('/Settings/count', {
     responses: {
       '200': {
         description: 'Setting model count',
@@ -49,7 +49,7 @@ export class SettingController {
     return await this.settingRepository.count(where);
   }
 
-  @get('/setting', {
+  @get('/Settings', {
     responses: {
       '200': {
         description: 'Array of Setting model instances',
@@ -94,7 +94,7 @@ export class SettingController {
       return await this.settingRepository.findById(id);
     } */
 
-  @patch('/setting/{id}', {
+  @patch('/Settings/{id}', {
     responses: {
       '204': {
         description: 'Setting PATCH success',
@@ -108,7 +108,7 @@ export class SettingController {
     await this.settingRepository.updateById(id, setting);
   }
 
-  @del('/setting/{id}', {
+  @del('/Settings/{id}', {
     responses: {
       '204': {
         description: 'Setting DELETE success',

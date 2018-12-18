@@ -14,7 +14,11 @@ import {
   patch,
   del,
   requestBody,
+  Response,
+  Request,
+  RestBindings
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {Wine} from '../models';
 import {WineRepository} from '../repositories';
 
@@ -24,7 +28,7 @@ export class WineController {
     public wineRepository : WineRepository,
   ) {}
 
-  @post('/wines', {
+  @post('/Wines', {
     responses: {
       '200': {
         description: 'Wine model instance',
@@ -32,11 +36,31 @@ export class WineController {
       },
     },
   })
-  async create(@requestBody() wine: Wine): Promise<Wine> {
+  async create(@requestBody() wine: Wine,@inject(RestBindings.Http.REQUEST) request: Request,@inject(RestBindings.Http.RESPONSE) response: Response): Promise<Wine> {
+    wine.packagingId = parseInt(request.body.packagingId);
+    if(request.body.premium){
+       wine.premium = true
+    }else{
+      wine.premium = false
+    }
+    if(!request.body.content){
+      wine.content = 0
+    }else{
+      wine.content = 1
+    }
+    if(request.body.availability){
+      wine.availability = true
+    }else{
+      wine.availability = false
+    }
+    wine.id = Math.floor(1000 + Math.random() * 9000);
+
+    console.log(wine);
+    
     return await this.wineRepository.create(wine);
   }
 
-  @get('/wines/count', {
+  @get('/Wines/count', {
     responses: {
       '200': {
         description: 'Wine model count',
@@ -50,7 +74,7 @@ export class WineController {
     return await this.wineRepository.count(where);
   }
 
-  @get('/wines', {
+  @get('/Wines', {
     responses: {
       '200': {
         description: 'Array of Wine model instances',
@@ -68,7 +92,7 @@ export class WineController {
     return await this.wineRepository.find(filter);
   }
 
-  @patch('/wines', {
+  @patch('/Wines', {
     responses: {
       '200': {
         description: 'Wine PATCH success count',
@@ -83,7 +107,7 @@ export class WineController {
     return await this.wineRepository.updateAll(wine, where);
   }
 
-  @get('/wines/{id}', {
+  @get('/Wines/{id}', {
     responses: {
       '200': {
         description: 'Wine model instance',
@@ -95,7 +119,7 @@ export class WineController {
     return await this.wineRepository.findById(id);
   }
 
-  @patch('/wines/{id}', {
+  @patch('/Wines/{id}', {
     responses: {
       '204': {
         description: 'Wine PATCH success',
@@ -109,7 +133,7 @@ export class WineController {
     await this.wineRepository.updateById(id, wine);
   }
 
-  @del('/wines/{id}', {
+  @del('/Wines/{id}', {
     responses: {
       '204': {
         description: 'Wine DELETE success',

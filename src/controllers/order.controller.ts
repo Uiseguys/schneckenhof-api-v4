@@ -24,7 +24,7 @@ export class OrderController {
     public orderRepository : OrderRepository,
   ) {}
 
-  @post('/orders', {
+  @post('/Orders', {
     responses: {
       '200': {
         description: 'Order model instance',
@@ -36,7 +36,7 @@ export class OrderController {
     return await this.orderRepository.create(order);
   }
 
-  @get('/orders/count', {
+  @get('/Orders/count', {
     responses: {
       '200': {
         description: 'Order model count',
@@ -50,7 +50,7 @@ export class OrderController {
     return await this.orderRepository.count(where);
   }
 
-  @get('/orders', {
+  @get('/Orders', {
     responses: {
       '200': {
         description: 'Array of Order model instances',
@@ -68,7 +68,7 @@ export class OrderController {
     return await this.orderRepository.find(filter);
   }
 
-  @patch('/orders', {
+  @patch('/Orders', {
     responses: {
       '200': {
         description: 'Order PATCH success count',
@@ -83,7 +83,7 @@ export class OrderController {
     return await this.orderRepository.updateAll(order, where);
   }
 
-  @get('/orders/{id}', {
+  @get('/Orders/{id}', {
     responses: {
       '200': {
         description: 'Order model instance',
@@ -95,7 +95,7 @@ export class OrderController {
     return await this.orderRepository.findById(id);
   }
 
-  @patch('/orders/{id}', {
+  @patch('/Orders/{id}', {
     responses: {
       '204': {
         description: 'Order PATCH success',
@@ -109,7 +109,7 @@ export class OrderController {
     await this.orderRepository.updateById(id, order);
   }
 
-  @del('/orders/{id}', {
+  @del('/Orders/{id}', {
     responses: {
       '204': {
         description: 'Order DELETE success',

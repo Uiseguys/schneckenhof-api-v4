@@ -24,7 +24,7 @@ export class TemplateController {
     public templateRepository : TemplateRepository,
   ) {}
 
-  @post('/templates', {
+  @post('/Templates', {
     responses: {
       '200': {
         description: 'Template model instance',
@@ -36,7 +36,7 @@ export class TemplateController {
     return await this.templateRepository.create(template);
   }
 
-  @get('/templates/count', {
+  @get('/Templates/count', {
     responses: {
       '200': {
         description: 'Template model count',
@@ -50,7 +50,7 @@ export class TemplateController {
     return await this.templateRepository.count(where);
   }
 
-  @get('/templates', {
+  @get('/Templates', {
     responses: {
       '200': {
         description: 'Array of Template model instances',
@@ -68,7 +68,7 @@ export class TemplateController {
     return await this.templateRepository.find(filter);
   }
 
-  @patch('/templates', {
+  @patch('/Templates', {
     responses: {
       '200': {
         description: 'Template PATCH success count',
@@ -83,7 +83,7 @@ export class TemplateController {
     return await this.templateRepository.updateAll(template, where);
   }
 
-  @get('/templates/{id}', {
+  @get('/Templates/{id}', {
     responses: {
       '200': {
         description: 'Template model instance',
@@ -95,7 +95,7 @@ export class TemplateController {
     return await this.templateRepository.findById(id);
   }
 
-  @patch('/templates/{id}', {
+  @patch('/Templates/{id}', {
     responses: {
       '204': {
         description: 'Template PATCH success',
@@ -109,7 +109,7 @@ export class TemplateController {
     await this.templateRepository.updateById(id, template);
   }
 
-  @del('/templates/{id}', {
+  @del('/Templates/{id}', {
     responses: {
       '204': {
         description: 'Template DELETE success',

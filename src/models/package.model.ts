@@ -23,10 +23,11 @@ export class Package extends Entity {
 
   @property({
     type: 'number',
-    required: true,
     id: true
   })
   id: number;
+
+  idInjection: false
 
   constructor(data?: Partial<Package>) {
     super(data);

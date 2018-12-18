@@ -31,7 +31,7 @@ export class ResourcesController {
     public resourceRepository: ResourceRepository
   ) { }
 
-  @post('/resources', {
+  @post('/Resources', {
     responses: {
       '200': {
         description: 'Resource model instance',
@@ -118,7 +118,9 @@ export class ResourcesController {
       upload(request, response, function (err) {
         if (err) reject(err);
         else{
+          
           let createjson = {
+            id:Math.floor(1000 + Math.random() * 9000),
             resourceId: uploadedFileName,
             weblinkUrl: weblinkurl,
             originalFilename: originalFileName,
@@ -134,7 +136,7 @@ export class ResourcesController {
     });
   }
 
-  @post('/resources/{container}/download/{name}', {
+  @post('/Resources/{container}/download/{name}', {
     responses: {
       '200': {
         description: 'Resource model upload instance',
@@ -147,7 +149,7 @@ export class ResourcesController {
   }
 
 
-  @get('/resources/count', {
+  @get('/Resources/count', {
     responses: {
       '200': {
         description: 'Resource model count',
@@ -161,7 +163,7 @@ export class ResourcesController {
     return await this.resourceRepository.count(where);
   }
 
-  @get('/resources', {
+  @get('/Resources', {
     responses: {
       '200': {
         description: 'Array of Resource model instances',
@@ -194,7 +196,7 @@ export class ResourcesController {
       return await this.resourceRepository.updateAll(resource, where);
     } */
 
-  @get('/resources/{id}', {
+  @get('/Resources/{id}', {
     responses: {
       '200': {
         description: 'Resource model instance',
@@ -222,7 +224,7 @@ export class ResourcesController {
     await this.resourceRepository.updateById(id, resource);
   }
  */
-  @del('/resources/{id}', {
+  @del('/Resources/{id}', {
     responses: {
       '204': {
         description: 'Resource DELETE success',

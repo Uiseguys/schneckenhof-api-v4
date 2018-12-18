@@ -23,6 +23,7 @@ export class WeingutApi extends BootMixin(
 
     // Set up default home page
     this.static('/', path.join(__dirname, '../../public'));
+    this.static('/schneckenhof-dev',path.join(__dirname, '../../schneckenhof-dev'))
 
     this.component(RestExplorerComponent);
 

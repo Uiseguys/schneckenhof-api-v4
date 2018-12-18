@@ -4,6 +4,7 @@ import { ApplicationConfig } from '@loopback/core';
 import { dsMigrate, dsUpdate } from './migrate';
 
 export async function main(options: ApplicationConfig = {}) {
+  console.log(options);
   const app = new WeingutApi(options);
   await app.boot();
   await app.start();

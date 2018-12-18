@@ -1,4 +1,5 @@
-import { Model, model, Entity, property } from '@loopback/repository';
+import { Model, model, Entity, property,belongsTo } from '@loopback/repository';
+import {Package} from './package.model';
 
 @model()
 export class Wine extends Entity {
@@ -100,12 +101,8 @@ export class Wine extends Entity {
   })
   description: string;
 
-  @property({
-    type: 'number',
-    required: true,
-    default: 0,
-  })
-  packageingId: number;
+  @belongsTo(() => Package)
+  packagingId: number;
 
   constructor(data?: Partial<Wine>) {
     super(data);

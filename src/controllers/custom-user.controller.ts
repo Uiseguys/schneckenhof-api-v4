@@ -14,10 +14,16 @@ import {
   patch,
   del,
   requestBody,
+  RestBindings,
+  Response,
+  Request
 } from '@loopback/rest';
+
+import {inject} from '@loopback/context';
 
 import { CustomUser } from '../models';
 import { UserRepository } from '../repositories';
+import { resolve } from 'dns';
 const bcrypt = require('bcrypt');
 
 export class CustomUserController {
@@ -27,7 +33,7 @@ export class CustomUserController {
     public userRepository: UserRepository,
   ) { }
 
-  @post('/CustomUser', {
+  @post('/CustomUsers', {
     responses: {
       '200': {
         description: 'User model instance',
@@ -40,7 +46,7 @@ export class CustomUserController {
     return await this.userRepository.create(user);
   }
 
-  @get('/CustomUser/count', {
+  @get('/CustomUsers/count', {
     responses: {
       '200': {
         description: 'User model count',
@@ -54,7 +60,7 @@ export class CustomUserController {
     return await this.userRepository.count(where);
   }
 
-  @get('/CustomUser', {
+  @get('/CustomUsers', {
     responses: {
       '200': {
         description: 'Array of User model instances',
@@ -72,7 +78,7 @@ export class CustomUserController {
     return await this.userRepository.find(filter);
   }
 
-  @patch('/CustomUser', {
+  @patch('/CustomUsers', {
     responses: {
       '200': {
         description: 'User PATCH success count',
@@ -87,7 +93,7 @@ export class CustomUserController {
     return await this.userRepository.updateAll(user, where);
   }
 
-  @get('/CustomUser/{id}', {
+  @get('/CustomUsers/{id}', {
     responses: {
       '200': {
         description: 'User model instance',
@@ -95,11 +101,12 @@ export class CustomUserController {
       },
     },
   })
-  async findById(@param.path.number('id') id: number): Promise<CustomUser> {
-    return await this.userRepository.findById(id);
+  async findById(@param.path.number('id') id: number): Promise<Object> {
+    
+    return await this.userRepository.find({where: {id: id}});
   }
 
-  @patch('/CustomUser/{id}', {
+  @patch('/CustomUsers/{id}', {
     responses: {
       '204': {
         description: 'User PATCH success',
@@ -113,7 +120,7 @@ export class CustomUserController {
     await this.userRepository.updateById(id, user);
   }
 
-  @del('/CustomUser/{id}', {
+  @del('/CustomUsers/{id}', {
     responses: {
       '204': {
         description: 'User DELETE success',
@@ -123,4 +130,51 @@ export class CustomUserController {
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.userRepository.deleteById(id);
   }
+
+  @post('CustomUsers/login', {
+    responses: {
+      '200': {
+        description: 'User login success',
+        content: { 'application/json': { schema: { 'x-ts-type': CustomUser } } },
+      },
+    },
+  })
+  async login(@requestBody({}
+  )@inject(RestBindings.Http.REQUEST) request: Request,@inject(RestBindings.Http.RESPONSE) response: Response): Promise<Object> {
+    return new Promise<object>((resolve, reject) => {
+      this.userRepository.find({where: {email: request.body.email}},
+      function(err:any,userInstance:any){
+         if(userInstance.length>0){
+           const match = bcrypt.compare(request.body.password,userInstance[0].password);
+           if(match){
+            resolve(userInstance[0]);
+           }else{
+             let msg = {error:{
+                message:"login failed"
+             }}
+             resolve(response.status(401).send(msg));
+           }
+         }else{
+           let msg = {error:{
+              message:"login failed"
+           }}
+          resolve(response.status(401).send(msg));
+         }
+      }) 
+    });
+   
+  }
+
+  @post('/CustomUsers/logout', {
+    responses: {
+      '200': {
+        description: 'User logout success',
+        content: { 'application/json': { schema: { 'x-ts-type': {} } } },
+      },
+    },
+  })
+  async logout(@requestBody()@inject(RestBindings.Http.REQUEST) request: Request,@inject(RestBindings.Http.RESPONSE) response: Response): Promise<void> {
+     
+  }
+
 }
