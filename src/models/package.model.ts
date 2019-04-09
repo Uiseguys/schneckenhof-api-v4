@@ -23,7 +23,8 @@ export class Package extends Entity {
 
   @property({
     type: 'number',
-    id: true
+    id: true,
+    default:0
   })
   id: number;
 

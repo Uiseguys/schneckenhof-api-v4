@@ -17,21 +17,23 @@ import {
   Response,
   Request
 } from '@loopback/rest';
-import {inject} from '@loopback/context';
+import { inject } from '@loopback/context';
 import { Resource } from '../models';
 import { ResourceRepository } from '../repositories';
 import * as config from '../datasources/db.datasource.json';
 import * as multer from 'multer';
 import * as fs from 'fs'
 import { request } from 'http';
+import { AuthenticationBindings, UserProfile, authenticate } from '@loopback/authentication';
 
 export class ResourcesController {
   constructor(
     @repository(ResourceRepository)
-    public resourceRepository: ResourceRepository
+    public resourceRepository: ResourceRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, { optional: true }) private user: UserProfile
   ) { }
 
-  @post('/Resources', {
+  /*@post('/Resources', {
     responses: {
       '200': {
         description: 'Resource model instance',
@@ -42,13 +44,16 @@ export class ResourcesController {
   async create(@requestBody() resource: Resource,@inject(RestBindings.Http.RESPONSE) response: Response,): Promise<Resource> {
 
     return await this.resourceRepository.create(resource);
-  }
+  }*/
 
+
+  // @authenticate('BasicStrategy')
   @post('/resources/{container}/upload', {
     responses: {
       '200': {
         description: 'Resource model upload instance',
         content: { 'application/json': { schema: { 'x-ts-type': Resource } } },
+        'Access-Control-Allow-Credentials': 'false'
       },
     }
   })
@@ -74,8 +79,8 @@ export class ResourcesController {
      
     });
   }*/
-  
-  async upload(@requestBody(
+
+  async create(@requestBody(
     {
       content: {
         'multipart/form-data': {
@@ -86,57 +91,87 @@ export class ResourcesController {
         },
       },
     }
-  ) request: Request,@inject(RestBindings.Http.RESPONSE) response: Response): Promise<object> {
+  ) request: Request, @inject(RestBindings.Http.RESPONSE) response: Response): Promise<object> {
     return new Promise<object>((resolve, reject) => {
       let self = this;
       var uploadedFileName = '';
       var originalFileName = '';
       var weblinkurl = '';
-      var filetype   = '';
-      const container    = config.storage.container || 'schneckenhof';
+      var filetype = '';
+      const container = config.storage.container || 'schneckenhof';
       var dirPath = container;
-      const storage = multer.diskStorage({
-        destination: function (req, file, cb) {
-            if (!fs.existsSync(dirPath)) {
-                var dir = fs.mkdirSync(dirPath);
-            }
-            cb(null, dirPath + '/');
-        },
-        filename: function (req, file, cb) {
-            var ext = file.originalname.substring(file.originalname.lastIndexOf("."));
+
+      const { Storage } = require('@google-cloud/storage');
+      // Your Google Cloud Platform project ID
+      const projectId = 'careful-chimera-215314';
+
+      // Creates a client
+      const google_storage = new Storage({
+        projectId: projectId,
+        keyFilename: './careful-chimera-215314-8a208a7e31b6.json'
+      });
+
+      // The name for the new bucket
+      const bucketName = 'schneckenhof-dev';
+      const bucket = google_storage.bucket('schneckenhof-dev');
+
+      bucket.acl.default.add({
+        entity: 'allUsers',
+        role: google_storage.acl.READER_ROLE
+      }, function (err: any) { });
+
+
+      // Creates the new bucket
+      // storage
+      //   .createBucket(bucketName)
+      //   .then(() => {
+      //     console.log(`Bucket ${bucketName} created.`);
+      //   })
+      //   .catch((err:any) => {
+      //     console.error('ERROR:', err);
+      //   });
+
+        const multiparty = require('multiparty');
+
+        const form = new multiparty.Form();
+        form.parse(request, (err: any, fields: any, files: any) => {
+          if (err) reject(err);
+          const file = files['file'][0]; // get the file from the returned files object
+          if (!file) reject('File was not found in form data.');
+          else {
+            var ext = file.originalFilename.substring(file.originalFilename.lastIndexOf("."));
             var fileName = Date.now() + ext;
             uploadedFileName = fileName;
-            originalFileName = file.originalname;
-            weblinkurl       = `/${dirPath}/${uploadedFileName}`
-            filetype         = file.mimetype
-            cb(null, fileName);
-        }
-      });
-      var upload = multer({
-        storage: storage
-      }).single('file');
-      upload(request, response, function (err) {
-        if (err) reject(err);
-        else{
-          
-          let createjson = {
-            id:Math.floor(1000 + Math.random() * 9000),
-            resourceId: uploadedFileName,
-            weblinkUrl: weblinkurl,
-            originalFilename: originalFileName,
-            type: filetype
+            originalFileName = file.originalFilename;
+            filetype = file.headers['content-type'];
+
+            bucket.upload(file.path, function (err: any, file: any) {
+              if (err) reject(err);
+              else {
+                weblinkurl = `/${dirPath}/${uploadedFileName}`
+
+                let createjson = {
+                  id: Math.floor(1000 + Math.random() * 9000),
+                  resourceId: uploadedFileName,
+                  weblinkUrl: file.metadata.mediaLink,
+                  originalFilename: originalFileName,
+                  type: filetype
+                }
+
+                console.log(createjson)
+                self.resourceRepository.create(createjson)
+                resolve({
+                  fileuploaded: uploadedFileName,
+                  weblinkurl: weblinkurl
+                });
+              }
+            })
           }
-          self.resourceRepository.create(createjson)
-          resolve({
-            fileuploaded: uploadedFileName,
-            weblinkurl: weblinkurl
-           });
-        }
-      }); 
+        });
     });
   }
 
-  @post('/Resources/{container}/download/{name}', {
+  /*@post('/Resources/{container}/download/{name}', {
     responses: {
       '200': {
         description: 'Resource model upload instance',
@@ -146,7 +181,7 @@ export class ResourcesController {
   })
   async download(@requestBody() resource: Resource): Promise<Resource> {
     return await this.resourceRepository.create(resource);
-  }
+  }*/
 
 
   @get('/Resources/count', {
@@ -224,6 +259,8 @@ export class ResourcesController {
     await this.resourceRepository.updateById(id, resource);
   }
  */
+
+  @authenticate('BasicStrategy')
   @del('/Resources/{id}', {
     responses: {
       '204': {

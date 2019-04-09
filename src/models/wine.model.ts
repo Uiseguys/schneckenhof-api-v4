@@ -1,7 +1,8 @@
 import { Model, model, Entity, property,belongsTo } from '@loopback/repository';
 import {Package} from './package.model';
 
-@model()
+@model({settings: {strict: false}})
+
 export class Wine extends Entity {
   @property({
     type: 'string',
@@ -23,6 +24,7 @@ export class Wine extends Entity {
   @property({
     type: 'number',
     id: true,
+    default:0
   })
   id?: number;
 
@@ -30,6 +32,9 @@ export class Wine extends Entity {
     type: 'number',
     required: true,
     default: 0,
+    postgresql: {
+      dataType: "NUMERIC(10,2)"
+    }
   })
   price: number;
 
@@ -83,7 +88,6 @@ export class Wine extends Entity {
 
   @property({
     type: 'number',
-    required: true,
     default: 0,
   })
   no: number;
@@ -92,12 +96,14 @@ export class Wine extends Entity {
     type: 'number',
     required: true,
     default: 0,
+    postgresql: {
+      dataType: "NUMERIC(10,2)"
+    }
   })
   alcohol: number;
 
   @property({
-    type: 'string',
-    required: true,
+    type: 'string'
   })
   description: string;
 

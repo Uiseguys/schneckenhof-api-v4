@@ -7,18 +7,19 @@ const application = require('./dist');
 
 module.exports = application;
 
+
 if (require.main === module) {
   // Run the application
   const config = {
     rest: {
-      port: +process.env.PORT || 3000,
-      host: process.env.HOST || 'localhost',
+      port: process.env.PORT || 3000,
+      //host: process.env.HOST || 'localhost',
       openApiSpec: {
         // useful when used with OASGraph to locate your application
         setServersFromRequest: true,
       },
       cors:{
-        origin: 'http://localhost:4200',
+        origin: '*',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
         optionsSuccessStatus: 204,
@@ -27,6 +28,7 @@ if (require.main === module) {
       }
     },
   };
+  
   application.main(config).catch(err => {
     console.error('Cannot start the application.', err);
     process.exit(1);

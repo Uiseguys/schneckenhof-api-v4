@@ -145,15 +145,18 @@ export class CustomUserController {
       this.userRepository.find({where: {email: request.body.email}},
       function(err:any,userInstance:any){
          if(userInstance.length>0){
-           const match = bcrypt.compare(request.body.password,userInstance[0].password);
-           if(match){
-            resolve(userInstance[0]);
-           }else{
-             let msg = {error:{
-                message:"login failed"
-             }}
-             resolve(response.status(401).send(msg));
-           }
+          bcrypt.compare(request.body.password, userInstance[0].password, function (err:any, match:any) {
+            if (match) {
+              resolve(userInstance[0]);
+            } else {
+              let msg = {
+                error: {
+                  message: "login failed"
+                }
+              }
+              resolve(response.status(401).send(msg));
+            }
+          });
          }else{
            let msg = {error:{
               message:"login failed"

@@ -8,12 +8,19 @@
     "user": "root",
     "password": "123@abc"
   },
+  "databaselive":{
+    "name": "mydb",
+    "connector": "postgresql",
+    "url": "postgres://vwqoemcsxofiwf:e75dd311452ae40aede74845f9aa242f50c7bfd85aa3c5a36ea4780191922468@ec2-54-247-125-137.eu-west-1.compute.amazonaws.com:5432/d6aldqifkj300h",
+    "ssl": true
+  },
   "storage": {
     "name": "storage",
     "connector": "loopback-component-storage",
-    "provider": "filesystem",
+    "provider": "google",
+    "keyFilename": "careful-chimera-215314-8a208a7e31b6.json",
+    "projectId": "careful-chimera-215314",
     "nameConflict": "makeUnique",
-    "root": "./server/storage",
     "container": "schneckenhof-dev"
   },
   "paypaldev":{

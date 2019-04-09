@@ -14,6 +14,6 @@ export * from './role-mapping.repository';
 export * from './template.repository';
 export * from './resource.repository';
 export * from './order.repository';
-
+export * from './news.repository';
 
 

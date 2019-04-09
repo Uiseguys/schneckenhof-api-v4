@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "careful-chimera-215314",
+  "private_key_id": "8a208a7e31b63a0696401306c5370312b4cfc782",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCLVmxIsYx7LayA\nh7i04wMcCTxxO1t6/pdBRyFxC017XTpupzttB+3W0JrYMrV7nGH/Kgn0iuYQvbd1\nO43cD/AoBcaBlTmPZ3yTNYfkt2XvhYveRaZUviURJXNh0cfhwtqaeVYHRNsgfFwT\nUHCrkIq0iLSSDVr+Va1Y3q8js8T0RdL4F8SArslQnsTQUJmplOWPMzpvVnp6ZcDM\nQ8MAKDVQtqijQ52jKFH+vWkIqNG5zZzbpLHH2oWkpk1YoWEVco/FjxkUQAcHYDAV\nbP1IjCEXfMyVvInFuIDz6PCrufn1cpKMlAalI/PDEFAB5R5HyMf0JSH9vUn6eIUb\nK2Frag6rAgMBAAECggEAERl0sHcZhlmp5xwWJBy32k5H3J2Bhyvh5AuWpF4pZA+i\nMXIpw3egTdHL2ZG03ovn0CiYkComPGe2hpczEY6N1QY1wNv59F9UKmdSBf97wv6L\nQPvLLcXSnAgR4NnzGFbmp45nFafy5vRcAwLG0PHWvnuzAo7LsT/9G1WN/hOnAqhg\nnW0j18w6+QHRe0UaLglsbIc4JXgCQA0basmkxZzQLsD/oHR0W69vN35GxH2jlkXm\nV0pemS2mbFmIoURA/YsPJxOEDZkO4kemdmpofe1hJ9hR3YoaGHANjnDkBJr1SYPh\npf6Hi1tvxgY9Id5/ZXFN9Enyi7i+dvRe3o+EbKv0AQKBgQDBMu2BUr+5Upf87HRl\nuowx+cXc/L4mYqMlh7sMjBWQxSZnvJV6UBgCB3sEAmM8C0RNezT+Ltfq1QUPsNKr\nBbt4nJv/7l5ceKqjExoyYfYgzwjew0aaIWDvF2OKkTUM2JZTQyNqnKwvOnrb/t59\nxlD3dREFdwrmgUJTcvw9iXTpQwKBgQC4oWq7NpbeQVqmB89MHBNnK+O1qL5y5w8k\nsVwUWuXPosh+/Mn+0kOSoZwVfPbl2rY8HQS7+Qtx63jZUoRIrYyV51Y5Xf6jPIGq\nRQMKIEmjQd69QO8SiC2eIdVHM60vLV/3VVFIMiJc7sIrb3kBe9f2AV+bfzUeutGt\n/6mc370aeQKBgQCKcyma1KcKcrLykKy1PiM7qSfvPrwxm9wYiBU2X6kQrwffrVhd\nZ8pcoem5LNDadaSD9fg682zOH8vZu7is0JXRUEHG/ZZnpB18cbMDSgps5pEPulb9\nG1Bw5ozx/y9KPmgz0NgvjYki60CiKRpefeEGBMGm7fFE0HqsfKlgnAHJKwKBgBK3\nqo5YNmtJzNrQJ9/baMwo0ujztnsHma1qnZ8ip/Go2xKkpgXDYz5WS/CRvqYGyjrF\n5lj4IoTmDlZZ2zdTANGhpkgik1IRLEQKwwgfxddbMi2Vi6chTx6c53ZUctY5j2UP\nrTHYg0tQmTa2ElpoJ7i04vBssQHwhplRNezFcfJhAoGAQPwgdieBj/C8S/b6f6Bq\nibGHMQ0Xf69/oOwnfwKse4uWFoK9YbN111hrNy/Jz6ZG8/jFdGEZlXHm1RqCp14K\n3s/7Yo3yZ+aNTpxsXqhR3b8fxWYp/reUT/iqFf9v4U/X6Xf0Dd3LSwisN90oMnPa\npNKvDrXr4fn1/aNTXx3BF+c=\n-----END PRIVATE KEY-----\n",
+  "client_email": "sh-client@careful-chimera-215314.iam.gserviceaccount.com",
+  "client_id": "114918866778663888297",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sh-client%40careful-chimera-215314.iam.gserviceaccount.com"
+}

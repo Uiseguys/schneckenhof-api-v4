@@ -15,16 +15,17 @@ export class Order extends Entity {
   email: string;
 
   @property({
-    type: 'number',
+    type: 'string',
     required: true,
-    default: 0,
+    default: '',
   })
-  total: number;
+  total: string;
 
   @property({
     type: 'number',
     id: true,
     required: true,
+    default:0
   })
   id: number;
 

@@ -6,6 +6,7 @@ export class Logs extends Entity {
     type: 'number',
     id: true,
     required: true,
+    default: 0
   })
   id: number;
 
@@ -27,7 +28,7 @@ export class Logs extends Entity {
   APIResponseTime?: object;
 
   @property({
-    type: 'date',
+    type: 'string',
   })
   OverallResponseTime?: string;
 
@@ -39,7 +40,7 @@ export class Logs extends Entity {
   @property({
     type: 'date',
   })
-  time?: string;
+  time?: Date;
 
   constructor(data?: Partial<Logs>) {
     super(data);

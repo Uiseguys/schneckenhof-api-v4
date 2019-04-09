@@ -6,6 +6,7 @@ export class Template extends Entity {
     type: 'number',
     id: true,
     required: true,
+    default:0
   })
   id: number;
 

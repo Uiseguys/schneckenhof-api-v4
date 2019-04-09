@@ -15,3 +15,4 @@ export * from './template.model';
 export * from './resource.model';
 export * from './order.model';
 export * from './payment.model';
+export * from './news.model';

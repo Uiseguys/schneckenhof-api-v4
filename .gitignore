@@ -60,7 +60,5 @@ typings/
 # Generated apidocs
 api-docs/
 
-# Transpiled JavaScript files from Typescript
-dist*/
 
 .DS_Store

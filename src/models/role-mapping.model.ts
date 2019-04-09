@@ -5,6 +5,7 @@ export class RoleMapping extends Entity {
   @property({
     type: 'number',
     id: true,
+    default:0
   })
   id?: number;
 

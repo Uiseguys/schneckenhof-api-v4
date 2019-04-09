@@ -15,15 +15,19 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import { Package } from '../models';
 import { PackageRepository } from '../repositories';
+import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
 
 export class PackageController {
   constructor(
     @repository(PackageRepository)
     public packageRepository: PackageRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
   ) { }
 
+  @authenticate('BasicStrategy')
   @post('/Packagings', {
     responses: {
       '200': {
@@ -70,20 +74,22 @@ export class PackageController {
     return await this.packageRepository.find(filter);
   }
 
-  @patch('/Packagings', {
-    responses: {
-      '200': {
-        description: 'Package PATCH success count',
-        content: { 'application/json': { schema: CountSchema } },
-      },
-    },
-  })
-  async updateAll(
-    @requestBody() packages: Package,
-    @param.query.object('where', getWhereSchemaFor(Package)) where?: Where,
-  ): Promise<Count> {
-    return await this.packageRepository.updateAll(packages, where);
-  }
+
+  // @authenticate('BasicStrategy')
+  // @patch('/Packagings', {
+  //   responses: {
+  //     '200': {
+  //       description: 'Package PATCH success count',
+  //       content: { 'application/json': { schema: CountSchema } },
+  //     },
+  //   },
+  // })
+  // async updateAll(
+  //   @requestBody() packages: Package,
+  //   @param.query.object('where', getWhereSchemaFor(Package)) where?: Where,
+  // ): Promise<Count> {
+  //   return await this.packageRepository.updateAll(packages, where);
+  // }
 
   @get('/Packagings/{id}', {
     responses: {
@@ -96,7 +102,8 @@ export class PackageController {
   async findById(@param.path.number('id') id: number): Promise<Package> {
     return await this.packageRepository.findById(id);
   }
-
+  
+  @authenticate('BasicStrategy')
   @patch('/Packagings/{id}', {
     responses: {
       '204': {
@@ -111,6 +118,7 @@ export class PackageController {
     await this.packageRepository.updateById(id, packages);
   }
 
+  @authenticate('BasicStrategy')
   @del('/Packagings/{id}', {
     responses: {
       '204': {

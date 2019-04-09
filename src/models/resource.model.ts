@@ -5,6 +5,7 @@ export class Resource extends Entity {
   @property({
     type: 'number',
     id: true,
+    default:0
   })
   id?: number;
 

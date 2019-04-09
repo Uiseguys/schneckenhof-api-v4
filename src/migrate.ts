@@ -3,7 +3,7 @@ import { WeingutApi } from './index';
 import {
   UserRepository, SettingRepository, WineRepository, PackageRepository,
   RoleMappingRepository, RolesRepository,
-  AclRepository, LogsRepository, TemplateRepository, ResourceRepository, OrderRepository
+  AclRepository, LogsRepository, TemplateRepository, ResourceRepository, OrderRepository, NewsRepository
 
 } from './repositories';
 
@@ -20,6 +20,7 @@ export async function dsMigrate(app: WeingutApi) {
   const templateRepo = await app.getRepository(TemplateRepository);
   const resourceRepo = await app.getRepository(ResourceRepository);
   const orderRepo = await app.getRepository(OrderRepository);
+  const newsRepo = await app.getRepository(NewsRepository);
   await ds.automigrate();
 }
 
@@ -36,7 +37,7 @@ export async function dsUpdate(app: WeingutApi) {
   const templateRepo = await app.getRepository(TemplateRepository);
   const resourceRepo = await app.getRepository(ResourceRepository);
   const orderRepo = await app.getRepository(OrderRepository);
-
+  const newsRepo = await app.getRepository(NewsRepository);
   await ds.autoupdate();
 }
 

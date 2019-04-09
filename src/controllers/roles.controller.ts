@@ -1,4 +1,4 @@
-import {
+/*import {
   Count,
   CountSchema,
   Filter,
@@ -119,4 +119,4 @@ export class RolesController {
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.rolesRepository.deleteById(id);
   }
-}
+}*/

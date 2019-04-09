@@ -15,16 +15,19 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {Order} from '../models';
 import {OrderRepository} from '../repositories';
+import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
 
 export class OrderController {
   constructor(
     @repository(OrderRepository)
     public orderRepository : OrderRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
   ) {}
 
-  @post('/Orders', {
+  /*@post('/Orders', {
     responses: {
       '200': {
         description: 'Order model instance',
@@ -34,7 +37,7 @@ export class OrderController {
   })
   async create(@requestBody() order: Order): Promise<Order> {
     return await this.orderRepository.create(order);
-  }
+  }*/
 
   @get('/Orders/count', {
     responses: {
@@ -68,7 +71,7 @@ export class OrderController {
     return await this.orderRepository.find(filter);
   }
 
-  @patch('/Orders', {
+  /*@patch('/Orders', {
     responses: {
       '200': {
         description: 'Order PATCH success count',
@@ -81,7 +84,7 @@ export class OrderController {
     @param.query.object('where', getWhereSchemaFor(Order)) where?: Where,
   ): Promise<Count> {
     return await this.orderRepository.updateAll(order, where);
-  }
+  }*/
 
   @get('/Orders/{id}', {
     responses: {
@@ -95,7 +98,7 @@ export class OrderController {
     return await this.orderRepository.findById(id);
   }
 
-  @patch('/Orders/{id}', {
+  /*@patch('/Orders/{id}', {
     responses: {
       '204': {
         description: 'Order PATCH success',
@@ -107,8 +110,9 @@ export class OrderController {
     @requestBody() order: Order,
   ): Promise<void> {
     await this.orderRepository.updateById(id, order);
-  }
-
+  }*/
+  
+  @authenticate('BasicStrategy')
   @del('/Orders/{id}', {
     responses: {
       '204': {

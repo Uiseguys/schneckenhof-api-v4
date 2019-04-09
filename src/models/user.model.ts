@@ -15,6 +15,9 @@ export class CustomUser extends Entity {
 
   @property({
     type: 'number',
+    id: true,
+    required: true,
+    default: 0
   })
   id?: number;
 

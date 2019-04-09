@@ -18,7 +18,6 @@ export class Setting extends Entity {
     type: 'number',
     required: true,
     id: true,
-
     default: 0,
   })
   id: number;

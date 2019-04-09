@@ -1,6 +1,6 @@
 p #{realname},
-p (#{email}) hat folgendes bestellt:
-
+a(href=`mailto:${email}` )  (#{email})
+span  hat folgendes bestellt:
 ul
   each val in items
     li= val.quantity + 'X ' + val.name
@@ -10,4 +10,5 @@ p Zip: #{zip}
 p City: #{city}
 p Phone: #{phone}
 p Message: #{message}
-p Email: #{email}
+span Email: 
+a(href=`mailto:${email}` )  (#{email})

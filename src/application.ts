@@ -7,10 +7,13 @@ import { BootMixin } from '@loopback/boot';
 import { ApplicationConfig } from '@loopback/core';
 import { RestExplorerComponent } from '@loopback/rest-explorer';
 import { RepositoryMixin } from '@loopback/repository';
-import { RestApplication } from '@loopback/rest';
 import { ServiceMixin } from '@loopback/service-proxy';
 import * as path from 'path';
+import {MyAuthStrategyProvider} from './providers/auth-strategy.provider';
 import { MySequence } from './sequence';
+import {RestApplication, RestServer, RestBindings} from '@loopback/rest';
+import {AuthenticationComponent,AuthenticationBindings,} from '@loopback/authentication';
+
 
 export class WeingutApi extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -18,6 +21,13 @@ export class WeingutApi extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
+    this.projectRoot = __dirname;
+
+    this.component(AuthenticationComponent);
+    this.bind(AuthenticationBindings.STRATEGY).toProvider(
+      MyAuthStrategyProvider,
+    );
+    
     // Set up the custom sequence
     this.sequence(MySequence);
 

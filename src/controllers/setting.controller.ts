@@ -6,6 +6,7 @@ import {
   Where,
 } from '@loopback/repository';
 import {
+  post,
   param,
   get,
   getFilterSchemaFor,
@@ -13,17 +14,24 @@ import {
   patch,
   del,
   requestBody,
+  RestBindings,
+  Response,
+  Request
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import { Setting } from '../models';
 import { SettingRepository } from '../repositories';
+import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
 
 export class SettingController {
   constructor(
     @repository(SettingRepository)
     public settingRepository: SettingRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
   ) { }
-  /*
-    @post('/setting', {
+  
+    @authenticate('BasicStrategy')
+    @post('/Settings/upsertWithWhere', {
       responses: {
         '200': {
           description: 'Setting model instance',
@@ -31,10 +39,38 @@ export class SettingController {
         },
       },
     })
-    async create(@requestBody() setting: Setting): Promise<Setting> {
-      return await this.settingRepository.create(setting);
+    async upsertWithWhere(@requestBody({
+      description: 'data',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              key: {type: 'string'},
+              value: {
+                type: 'object',
+              }
+            },
+          },
+        },
+      },
+    })@inject(RestBindings.Http.REQUEST) request: Request,@inject(RestBindings.Http.RESPONSE) response: Response,@param.query.object('where', getWhereSchemaFor(Setting)) where?: Where): Promise<void> {
+       let self = this;
+      this.settingRepository.find({where: {key: request.body.key}},function(err:any, settingInstance:any){
+            if(settingInstance.length>0){
+              self.settingRepository.updateAll(request.body, {key:request.body.key});
+            }else{
+                let createjson ={
+                   id: Math.floor(1000 + Math.random() * 9000),
+                   key:request.body.key,
+                   value:request.body.value
+                }
+              self.settingRepository.create(createjson);
+            }
+      })
+      //return await this.settingRepository.create(setting);
     }
-   */
+   
   @get('/Settings/count', {
     responses: {
       '200': {
@@ -94,6 +130,8 @@ export class SettingController {
       return await this.settingRepository.findById(id);
     } */
 
+
+  @authenticate('BasicStrategy')
   @patch('/Settings/{id}', {
     responses: {
       '204': {
@@ -108,6 +146,48 @@ export class SettingController {
     await this.settingRepository.updateById(id, setting);
   }
 
+  @post('/Settings/netlify', {
+    responses: {
+      '200': {
+        description: 'Setting model instance',
+        content: { 'application/json': { schema: { 'x-ts-type': Setting } } },
+      },
+    },
+  })
+  async upsertWithWheres(@requestBody({
+    description: 'data',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            key: { type: 'string' },
+            value: {
+              type: 'object',
+            }
+          },
+        },
+      },
+    },
+  }) @inject(RestBindings.Http.REQUEST) request: Request, @inject(RestBindings.Http.RESPONSE) response: Response, @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where): Promise<void> {
+    let self = this;
+    this.settingRepository.find({ where: { key: "netlifyHook" } }, function (err: any, settingInstance: any) {
+      if (settingInstance.length > 0) {
+        self.settingRepository.updateAll({value: request.body}, { key: "netlifyHook" });
+      } else {
+        let createjson = {
+          id: Math.floor(1000 + Math.random() * 9000),
+          key: "netlifyHook",
+          value: request.body,
+        }
+        self.settingRepository.create(createjson);
+      }
+    })
+    //return await this.settingRepository.create(setting);
+  }
+
+
+  @authenticate('BasicStrategy')
   @del('/Settings/{id}', {
     responses: {
       '204': {
