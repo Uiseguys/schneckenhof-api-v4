@@ -24,6 +24,8 @@ import {inject} from '@loopback/context';
 import { CustomUser } from '../models';
 import { UserRepository } from '../repositories';
 import { resolve } from 'dns';
+import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
+
 const bcrypt = require('bcrypt');
 
 export class CustomUserController {
@@ -31,7 +33,10 @@ export class CustomUserController {
   constructor(
     @repository(UserRepository)
     public userRepository: UserRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
   ) { }
+
+  @authenticate('BasicStrategy')
 
   @post('/CustomUsers', {
     responses: {

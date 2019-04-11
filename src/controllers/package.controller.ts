@@ -37,7 +37,6 @@ export class PackageController {
     },
   })
   async create(@requestBody() packages: Package): Promise<Package> {
-    console.log(packages);
     packages.id = Math.floor(1000 + Math.random() * 9000);
     return await this.packageRepository.create(packages);
   }

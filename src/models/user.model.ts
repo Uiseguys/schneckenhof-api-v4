@@ -47,7 +47,7 @@ export class CustomUser extends Entity {
 
   @property({
     type: 'boolean',
-    default: 0,
+    default: false,
   })
   emailVerified?: boolean;
 

@@ -18,10 +18,10 @@ import {
   Request,
   RestBindings
 } from '@loopback/rest';
-import {inject} from '@loopback/context';
-import {Wine} from '../models';
-import {WineRepository} from '../repositories';
-import {PackageRepository} from '../repositories';
+import { inject } from '@loopback/context';
+import { Wine } from '../models';
+import { WineRepository } from '../repositories';
+import { PackageRepository } from '../repositories';
 import {
   AuthenticationBindings,
   UserProfile,
@@ -31,22 +31,22 @@ import {
 export class WineController {
   constructor(
     @repository(WineRepository)
-    public wineRepository : WineRepository,
+    public wineRepository: WineRepository,
     @repository(PackageRepository)
     public packageRepository: PackageRepository,
-    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
-  ) {}
-  
+    @inject(AuthenticationBindings.CURRENT_USER, { optional: true }) private user: UserProfile
+  ) { }
+
   @authenticate('BasicStrategy')
   @post('/Wines', {
     responses: {
       '200': {
         description: 'Wine model instance',
-        content: {'application/json': {schema: {'x-ts-type': Wine}}},
+        content: { 'application/json': { schema: { 'x-ts-type': Wine } } },
       },
     },
   })
-  async create(@requestBody() wine: Wine,@inject(RestBindings.Http.REQUEST) request: Request,@inject(RestBindings.Http.RESPONSE) response: Response): Promise<Wine> {
+  async create(@requestBody() wine: Wine, @inject(RestBindings.Http.REQUEST) request: Request, @inject(RestBindings.Http.RESPONSE) response: Response): Promise<Wine> {
     wine.id = Math.floor(1000 + Math.random() * 9000);
     return await this.wineRepository.create(wine);
   }
@@ -57,7 +57,7 @@ export class WineController {
     responses: {
       '200': {
         description: 'Wine model count',
-        content: {'application/json': {schema: CountSchema}},
+        content: { 'application/json': { schema: CountSchema } },
       },
     },
   })
@@ -74,7 +74,7 @@ export class WineController {
         description: 'Array of Wine model instances',
         content: {
           'application/json': {
-            schema: {type: 'array', items: {'x-ts-type': Wine}},
+            schema: { type: 'array', items: { 'x-ts-type': Wine } },
           },
         },
       },
@@ -83,58 +83,44 @@ export class WineController {
   async find(
     @param.query.object('filter', getFilterSchemaFor(Wine)) filter?: Filter,
   ): Promise<object> {
-     let self = this
-     let finaldata:any = [];
-     return new Promise<object>((resolve,reject)=>{
-        this.wineRepository.find(filter, function(err:any,wine:any){
-              for(let i=0; i<wine.length; i++){
-                 let obj =  '{'
-                    +'"id": '+wine[i].id+','
-                    +'"type": "'+wine[i].type+'",'
-                    +'"name": "'+wine[i].name+'",'
-                    +'"vintage":'+wine[i].vintage+','
-                    +'"price":'+wine[i].price+','
-                    +'"awardText":"'+wine[i].awardText+'",'
-                    +'"awardLevel":"'+wine[i].awardLevel+'",'
-                    +'"image":"'+wine[i].image+'",'
-                    +'"availability":'+wine[i].availability+','
-                    +'"content":'+wine[i].content+','
-                    +'"varietal":"'+wine[i].varietal+'",'
-                    +'"premium":'+wine[i].premium+','
-                    +'"priority":'+wine[i].priority+','
-                    +'"no":'+wine[i].no+','
-                    +'"alcohol":'+wine[i].alcohol+','
-                    +'"description":"'+wine[i].description+'",'
-                    +'"packagingId":'+wine[i].packagingId+''
-                  +'}';
-                  obj = JSON.parse(obj);
-                  let data:any = [];
-                  data.push(obj);
-                  self.packageRepository.find({where:{id:wine[i].packagingId}},function(err:any,packaging:any){
-                       data[0].packaging = packaging[0];
-                       finaldata.push(data[0]);
-                  });
+    let self = this
+    let packagingData: any = [];
+    return new Promise<object>((resolve, reject) => {
+      this.wineRepository.find(filter, function (err: any, wine: any) {
+        if (err) {
+          reject(err)
+        } else {
+          self.packageRepository.find({}, function (err: any, packaging: any) {
+            if (err) {
+              reject(err)
+            } else {
+              packagingData = packaging;
+              for (let i = 0; i < wine.length; i++) {
+                let index= packagingData.findIndex((x:any)=> x.id ==  wine[i].packagingId);
+                if(index > -1){
+                  wine[i]['packaging']= packagingData[index];
+                }
               }
+              resolve(wine);
+            }
+          });
+        }
+      })
+    });
+    /*this.wineRepository.find(filter,function(err:any,wine:any){ 
+     let winedata:any = {};
+     if(wine.length>0){
+         for(let i=0; i<wine.length; i++){
+            self.packageRepository.find({where: {id: wine[i].packagingId}},function(err:any, packaging:any){
+                 //console.log(packaging);
+                 wine[i]["packaging"] = packaging[0];
+                 console.log(wine[i]);
+            })
+         }
+      }
+    });
+    return await this.wineRepository.find(filter);*/
 
-              setTimeout(function(){
-                   resolve(finaldata);
-              },2000)
-        })
-     });
-     /*this.wineRepository.find(filter,function(err:any,wine:any){ 
-      let winedata:any = {};
-      if(wine.length>0){
-          for(let i=0; i<wine.length; i++){
-             self.packageRepository.find({where: {id: wine[i].packagingId}},function(err:any, packaging:any){
-                  //console.log(packaging);
-                  wine[i]["packaging"] = packaging[0];
-                  console.log(wine[i]);
-             })
-          }
-       }
-     });
-     return await this.wineRepository.find(filter);*/
-     
   }
 
 
@@ -142,7 +128,7 @@ export class WineController {
     responses: {
       '200': {
         description: 'Wine PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
+        content: { 'application/json': { schema: CountSchema } },
       },
     },
   })
@@ -153,12 +139,12 @@ export class WineController {
     return await this.wineRepository.updateAll(wine, where);
   }
 
-  
+
   @get('/Wines/{id}', {
     responses: {
       '200': {
         description: 'Wine model instance',
-        content: {'application/json': {schema: {'x-ts-type': Wine}}},
+        content: { 'application/json': { schema: { 'x-ts-type': Wine } } },
       },
     },
   })

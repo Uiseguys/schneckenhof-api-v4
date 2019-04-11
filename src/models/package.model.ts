@@ -4,7 +4,7 @@ import { Model, model, property, Entity } from '@loopback/repository';
 export class Package extends Entity {
   @property({
     type: 'string',
-    required: true,
+    required: false,
   })
   displayName: string;
 

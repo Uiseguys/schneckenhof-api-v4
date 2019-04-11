@@ -27,17 +27,17 @@ export class OrderController {
     @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
   ) {}
 
-  /*@post('/Orders', {
-    responses: {
-      '200': {
-        description: 'Order model instance',
-        content: {'application/json': {schema: {'x-ts-type': Order}}},
-      },
-    },
-  })
-  async create(@requestBody() order: Order): Promise<Order> {
-    return await this.orderRepository.create(order);
-  }*/
+  // @post('/Orders', {
+  //   responses: {
+  //     '200': {
+  //       description: 'Order model instance',
+  //       content: {'application/json': {schema: {'x-ts-type': Order}}},
+  //     },
+  //   },
+  // })
+  // async create(@requestBody() order: Order): Promise<Order> {
+  //   return await this.orderRepository.create(order);
+  // }
 
   @get('/Orders/count', {
     responses: {

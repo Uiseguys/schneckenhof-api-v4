@@ -58,7 +58,7 @@ export class PaymentController {
             if (payment.pay_method === 'paypal') {
                 this.orderRepository.create(
                     {
-                        id: Math.floor(1000 + Math.random() * 9000),
+                        id: Math.floor(1000 + Math.random() * 900000),
                         type: 'paypal',
                         email: request.body.email,
                         total: request.body.total,
@@ -158,8 +158,10 @@ export class PaymentController {
 
                                             var options = {
                                                 auth: {
-                                                    api_key: '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'
+                                                    api_user: process.env.SENDGRID_USERNAME ||  '',
+                                                    api_key:  process.env.SENDGRID_PASSWORD || ''
                                                 }
+                                            
                                             }
                                             // var transport = nodemailer.createTransport({
                                             //     service: 'gmail',

@@ -65,6 +65,9 @@ export class Wine extends Entity {
     type: 'number',
     required: true,
     default: 0,
+    postgresql: {
+      dataType: "NUMERIC(10,2)"
+    }
   })
   content: number;
 
