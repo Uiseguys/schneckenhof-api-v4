@@ -125,7 +125,6 @@ export class PaymentController {
                             self.settingRepository.find({ where: { key: 'email' } },
                                 function (err: any, settingInstance: any) {
                                     const emailSetting = settingInstance[0].value;
-                                    console.log(emailSetting)
 
                                     const toAddresses = (emailSetting.to || '').split(',');
                                     const email = new emailtemplate(
@@ -157,7 +156,6 @@ export class PaymentController {
                                         }
                                     ).
                                         then(function (emailtemplate: any) {
-console.log(emailtemplate)
                                             var options = {
                                                 auth: {
                                                     api_user: process.env.SENDGRID_USERNAME ||  '',
