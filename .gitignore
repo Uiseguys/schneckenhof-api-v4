@@ -62,3 +62,10 @@ api-docs/
 
 
 .DS_Store
+.idea/api-v4.iml
+.idea/misc.xml
+.idea/.name
+.idea/encodings.xml
+.idea/markdown-navigator.xml
+.idea/markdown-navigator/profiles_settings.xml
+schneckenhof-api-v4.iml

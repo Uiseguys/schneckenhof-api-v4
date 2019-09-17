@@ -103,12 +103,12 @@ export class ResourcesController {
 
       const { Storage } = require('@google-cloud/storage');
       // Your Google Cloud Platform project ID
-      const projectId = 'careful-chimera-215314';
+      const projectId = '945516150699';
 
       // Creates a client
       const google_storage = new Storage({
         projectId: projectId,
-        keyFilename: './careful-chimera-215314-8a208a7e31b6.json'
+        keyFilename: './weingut-schneckenhof-a8e85ce5a0ba.json'
       });
 
       // The name for the new bucket
