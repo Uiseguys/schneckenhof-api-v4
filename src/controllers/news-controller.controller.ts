@@ -18,7 +18,8 @@ import {
 import {inject} from '@loopback/context';
 import {News} from '../models';
 import {NewsRepository} from '../repositories';
-import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
+import { AuthenticationBindings, authenticate } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 
 export class NewsControllerController {
   constructor(

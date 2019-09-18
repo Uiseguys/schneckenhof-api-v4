@@ -18,7 +18,8 @@ import {
 import {inject} from '@loopback/context';
 import {Order} from '../models';
 import {OrderRepository} from '../repositories';
-import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
+import { AuthenticationBindings, authenticate } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 
 export class OrderController {
   constructor(

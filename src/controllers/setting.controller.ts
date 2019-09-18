@@ -21,7 +21,8 @@ import {
 import {inject} from '@loopback/context';
 import { Setting } from '../models';
 import { SettingRepository } from '../repositories';
-import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
+import { AuthenticationBindings, authenticate } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 
 export class SettingController {
   constructor(

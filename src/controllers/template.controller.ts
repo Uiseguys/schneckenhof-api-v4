@@ -21,7 +21,8 @@ import {
 import { inject } from '@loopback/context';
 import { Template } from '../models';
 import { TemplateRepository } from '../repositories';
-import { AuthenticationBindings, UserProfile, authenticate } from '@loopback/authentication';
+import { AuthenticationBindings } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 import * as config from '../datasources/db.datasource.json';
 import * as multer from 'multer';
 import * as fs from 'fs'

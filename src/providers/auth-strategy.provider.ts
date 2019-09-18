@@ -1,10 +1,7 @@
 import { Provider, inject, ValueOrPromise, Getter } from '@loopback/context';
 import { Strategy } from 'passport';
-import {
-  AuthenticationBindings,
-  AuthenticationMetadata,
-  UserProfile,
-} from '@loopback/authentication';
+import { AuthenticationBindings, AuthenticationMetadata } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 import { BasicStrategy } from 'passport-http';
 import { UserRepository } from '../repositories';
 import {
@@ -36,7 +33,7 @@ export class MyAuthStrategyProvider implements Provider<Strategy | undefined> {
   verify(
     username: string,
     password: string,
-    cb: (err: Error | null, user?: UserProfile | false) => void,
+    cb: (err: Error | null, user?: any | false) => void,
   ) {
     this.userRepository.findOne({ where: { email: username } }, function (err: any, user: any) {
       if (user) {

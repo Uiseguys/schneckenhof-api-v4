@@ -24,7 +24,8 @@ import * as config from '../datasources/db.datasource.json';
 import * as multer from 'multer';
 import * as fs from 'fs'
 import { request } from 'http';
-import { AuthenticationBindings, UserProfile, authenticate } from '@loopback/authentication';
+import { AuthenticationBindings, authenticate } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 
 export class ResourcesController {
   constructor(

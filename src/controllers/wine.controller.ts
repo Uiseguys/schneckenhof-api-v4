@@ -22,11 +22,8 @@ import { inject } from '@loopback/context';
 import { Wine } from '../models';
 import { WineRepository } from '../repositories';
 import { PackageRepository } from '../repositories';
-import {
-  AuthenticationBindings,
-  UserProfile,
-  authenticate,
-} from '@loopback/authentication';
+import { AuthenticationBindings, authenticate } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 
 export class WineController {
   constructor(

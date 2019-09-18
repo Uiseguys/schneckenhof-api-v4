@@ -30,7 +30,8 @@ import * as config from '../datasources/db.datasource.json';
 import * as nodemailer from 'nodemailer';
 var sgTransport = require('nodemailer-sendgrid-transport');
 
-import { AuthenticationBindings, UserProfile, authenticate } from '@loopback/authentication';
+import { AuthenticationBindings, authenticate } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 
 
 export class PaymentController {

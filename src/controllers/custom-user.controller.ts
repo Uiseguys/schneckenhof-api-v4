@@ -23,8 +23,8 @@ import {inject} from '@loopback/context';
 
 import { CustomUser } from '../models';
 import { UserRepository } from '../repositories';
-import { resolve } from 'dns';
-import {AuthenticationBindings,UserProfile,authenticate} from '@loopback/authentication';
+import { AuthenticationBindings, authenticate } from '@loopback/authentication';
+import { UserProfile } from '@loopback/security';
 
 const bcrypt = require('bcrypt');
 
