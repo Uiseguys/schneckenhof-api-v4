@@ -10,8 +10,10 @@ import {
   param,
   get,
   getFilterSchemaFor,
+  getModelSchemaRef,
   getWhereSchemaFor,
   patch,
+  put,
   del,
   requestBody,
 } from '@loopback/rest';
@@ -28,12 +30,24 @@ export class LogsController {
     responses: {
       '200': {
         description: 'Logs model instance',
-        content: {'application/json': {schema: {'x-ts-type': Logs}}},
+        content: {'application/json': {schema: getModelSchemaRef(Logs)}},
       },
     },
   })
-  async create(@requestBody() logs: Logs): Promise<Logs> {
-    return await this.logsRepository.create(logs);
+  async create(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Logs, {
+            title: 'NewLogs',
+            exclude: ['id'],
+          }),
+        },
+      },
+    })
+    logs: Omit<Logs, 'id'>,
+  ): Promise<Logs> {
+    return this.logsRepository.create(logs);
   }
 
   @get('/logs/count', {
@@ -45,9 +59,9 @@ export class LogsController {
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Logs)) where?: Where,
+    @param.query.object('where', getWhereSchemaFor(Logs)) where?: Where<Logs>,
   ): Promise<Count> {
-    return await this.logsRepository.count(where);
+    return this.logsRepository.count(where);
   }
 
   @get('/logs', {
@@ -56,16 +70,16 @@ export class LogsController {
         description: 'Array of Logs model instances',
         content: {
           'application/json': {
-            schema: {type: 'array', items: {'x-ts-type': Logs}},
+            schema: {type: 'array', items: getModelSchemaRef(Logs)},
           },
         },
       },
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Logs)) filter?: Filter,
+    @param.query.object('filter', getFilterSchemaFor(Logs)) filter?: Filter<Logs>,
   ): Promise<Logs[]> {
-    return await this.logsRepository.find(filter);
+    return this.logsRepository.find(filter);
   }
 
   @patch('/logs', {
@@ -77,22 +91,29 @@ export class LogsController {
     },
   })
   async updateAll(
-    @requestBody() logs: Logs,
-    @param.query.object('where', getWhereSchemaFor(Logs)) where?: Where,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Logs, {partial: true}),
+        },
+      },
+    })
+    logs: Logs,
+    @param.query.object('where', getWhereSchemaFor(Logs)) where?: Where<Logs>,
   ): Promise<Count> {
-    return await this.logsRepository.updateAll(logs, where);
+    return this.logsRepository.updateAll(logs, where);
   }
 
   @get('/logs/{id}', {
     responses: {
       '200': {
         description: 'Logs model instance',
-        content: {'application/json': {schema: {'x-ts-type': Logs}}},
+        content: {'application/json': {schema: getModelSchemaRef(Logs)}},
       },
     },
   })
   async findById(@param.path.number('id') id: number): Promise<Logs> {
-    return await this.logsRepository.findById(id);
+    return this.logsRepository.findById(id);
   }
 
   @patch('/logs/{id}', {
@@ -104,9 +125,30 @@ export class LogsController {
   })
   async updateById(
     @param.path.number('id') id: number,
-    @requestBody() logs: Logs,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Logs, {partial: true}),
+        },
+      },
+    })
+    logs: Logs,
   ): Promise<void> {
     await this.logsRepository.updateById(id, logs);
+  }
+
+  @put('/logs/{id}', {
+    responses: {
+      '204': {
+        description: 'Logs PUT success',
+      },
+    },
+  })
+  async replaceById(
+    @param.path.number('id') id: number,
+    @requestBody() logs: Logs,
+  ): Promise<void> {
+    await this.logsRepository.replaceById(id, logs);
   }
 
   @del('/logs/{id}', {

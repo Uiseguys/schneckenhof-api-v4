@@ -1,9 +1,15 @@
-import { Model, model, Entity, property,belongsTo } from '@loopback/repository';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {Package} from './package.model';
 
 @model({settings: {strict: false}})
-
 export class Wine extends Entity {
+  @property({
+    type: 'number',
+    id: true,
+    generated: true,
+  })
+  id?: number;
+
   @property({
     type: 'string',
     required: true,
@@ -23,18 +29,11 @@ export class Wine extends Entity {
 
   @property({
     type: 'number',
-    id: true,
-    default:0
-  })
-  id?: number;
-
-  @property({
-    type: 'number',
     required: true,
     default: 0,
     postgresql: {
-      dataType: "NUMERIC(10,2)"
-    }
+      dataType: 'NUMERIC(10,2)',
+    },
   })
   price: number;
 
@@ -66,8 +65,8 @@ export class Wine extends Entity {
     required: true,
     default: 0,
     postgresql: {
-      dataType: "NUMERIC(10,2)"
-    }
+      dataType: 'NUMERIC(10,2)',
+    },
   })
   content: number;
 
@@ -91,6 +90,7 @@ export class Wine extends Entity {
 
   @property({
     type: 'number',
+    required: true,
     default: 0,
   })
   no: number;
@@ -100,20 +100,33 @@ export class Wine extends Entity {
     required: true,
     default: 0,
     postgresql: {
-      dataType: "NUMERIC(10,2)"
-    }
+      dataType: 'NUMERIC(10,2)',
+    },
   })
   alcohol: number;
 
   @property({
-    type: 'string'
+    type: 'string',
+    required: true,
   })
   description: string;
 
   @belongsTo(() => Package)
   packagingId: number;
 
+  // Define well-known properties here
+
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
+
   constructor(data?: Partial<Wine>) {
     super(data);
   }
 }
+
+export interface WineRelations {
+  // describe navigational properties here
+}
+
+export type WineWithRelations = Wine & WineRelations;

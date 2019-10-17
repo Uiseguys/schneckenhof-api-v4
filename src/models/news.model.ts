@@ -1,72 +1,79 @@
-import { Entity, model, property, RepositoryMixin, RepositoryMixinDoc } from '@loopback/repository';
+import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({settings: {strict: false}})
 export class News extends Entity {
-    @property({
-        type: 'date',
-        required: true,
-    })
-    relevantFrom: Date;
+  @property({
+    type: 'number',
+    id: true,
+    generated: true,
+  })
+  id?: number;
 
-    @property({
-        type: 'date',
-        required: true,
-    })
-    relevantTo: Date;
+  @property({
+    type: 'date',
+    required: true,
+  })
+  relevantFrom: string;
 
-    @property({
-        type: 'string',
-        required: true
-    })
-    title: string;
+  @property({
+    type: 'date',
+    required: true,
+  })
+  relevantTo: string;
 
-    @property({
-        type: 'number',
-        id: true,
-        default: 0
-    })
-    id: number;
+  @property({
+    type: 'string',
+    required: true,
+  })
+  title: string;
 
-    @property({
-        type: 'string',
-        required: false,
-    })
-    shortDescription: string;
+  @property({
+    type: 'string',
+  })
+  shortDescription?: string;
 
-    @property({
-        type: 'string',
-        required: false
-    })
-    description: number;
+  @property({
+    type: 'string',
+  })
+  description?: string;
 
-    @property({
-        type: 'string',
-        required: false,
-        default:""
-    })
-    homePageDescription: string;
+  @property({
+    type: 'string',
+    default: '',
+  })
+  homePageDescription?: string;
 
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  showOnHome?: boolean;
 
-    @property({
-        type: 'boolean',
-        required: false,
-        default: false
-    })
-    showOnHome: boolean;
+  @property({
+    type: 'date',
+    required: true,
+  })
+  startDate: string;
 
-    @property({
-        type: 'date',
-        required: true,
-    })
-    startDate: Date;
+  @property({
+    type: 'date',
+    required: true,
+  })
+  endDate: string;
 
-    @property({
-        type: 'date',
-        required: true,
-    })
-    endDate: Date;
+  // Define well-known properties here
 
-    constructor(data?: Partial<News>) {
-        super(data);
-    }
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
+
+  constructor(data?: Partial<News>) {
+    super(data);
+  }
 }
+
+export interface NewsRelations {
+  // describe navigational properties here
+}
+
+export type NewsWithRelations = News & NewsRelations;

@@ -1,62 +1,20 @@
-import { DataSource, Repository } from '@loopback/repository';
-import { WeingutApi } from './index';
-import {
-  UserRepository, SettingRepository, WineRepository, PackageRepository,
-  RoleMappingRepository, RolesRepository,
-  AclRepository, LogsRepository, TemplateRepository, ResourceRepository, OrderRepository, NewsRepository
+import {SchneckenhofApiApplication} from './application';
 
-} from './repositories';
+export async function migrate(args: string[]) {
+  const existingSchema = args.includes('--rebuild') ? 'drop' : 'alter';
+  console.log('Migrating schemas (%s existing schema)', existingSchema);
 
-export async function dsMigrate(app: WeingutApi) {
-  const ds = await app.get<DataSource>('datasources.db');
-  const userRepo = await app.getRepository(UserRepository);
-  const settRepo = await app.getRepository(SettingRepository);
-  const wineRepo = await app.getRepository(WineRepository);
-  const packRepo = await app.getRepository(PackageRepository);
-  const rolemapRepo = await app.getRepository(RoleMappingRepository);
-  const rolesRepo = await app.getRepository(RolesRepository);
-  const aclRepo = await app.getRepository(AclRepository);
-  const logRepo = await app.getRepository(LogsRepository);
-  const templateRepo = await app.getRepository(TemplateRepository);
-  const resourceRepo = await app.getRepository(ResourceRepository);
-  const orderRepo = await app.getRepository(OrderRepository);
-  const newsRepo = await app.getRepository(NewsRepository);
-  await ds.automigrate();
+  const app = new SchneckenhofApiApplication();
+  await app.boot();
+  await app.migrateSchema({existingSchema});
+
+  // Connectors usually keep a pool of opened connections,
+  // this keeps the process running even after all work is done.
+  // We need to exit explicitly.
+  process.exit(0);
 }
 
-export async function dsUpdate(app: WeingutApi) {
-  const ds = await app.get<DataSource>('datasources.db');
-  const userRepo = await app.getRepository(UserRepository);
-  const settRepo = await app.getRepository(SettingRepository);
-  const wineRepo = await app.getRepository(WineRepository);
-  const packRepo = await app.getRepository(PackageRepository);
-  const rolemapRepo = await app.getRepository(RoleMappingRepository);
-  const rolesRepo = await app.getRepository(RolesRepository);
-  const aclRepo = await app.getRepository(AclRepository);
-  const logRepo = await app.getRepository(LogsRepository);
-  const templateRepo = await app.getRepository(TemplateRepository);
-  const resourceRepo = await app.getRepository(ResourceRepository);
-  const orderRepo = await app.getRepository(OrderRepository);
-  const newsRepo = await app.getRepository(NewsRepository);
-  await ds.autoupdate();
-}
-
-
-/*
-export * from './user.repository';
-export * from './setting.repository';
-export * from './wine.repository';
-export * from './package.repository';
-export * from './roles.repository';
-export * from './acl.repository';
-export * from './logs.repository';
-export * from './role-mapping.repository';
-export * from './template.repository';
-export * from './resource.repository';
-export * from './order.repository';
-
-
-
-
-
-*/
+migrate(process.argv).catch(err => {
+  console.error('Cannot migrate database schema', err);
+  process.exit(1);
+});

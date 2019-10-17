@@ -57,15 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
-# Generated apidocs
-api-docs/
+# Transpiled JavaScript files from Typescript
+/dist
 
-
-.DS_Store
-.idea/api-v4.iml
-.idea/misc.xml
-.idea/.name
-.idea/encodings.xml
-.idea/markdown-navigator.xml
-.idea/markdown-navigator/profiles_settings.xml
-schneckenhof-api-v4.iml
+# Cache used by TypeScript's incremental build
+*.tsbuildinfo

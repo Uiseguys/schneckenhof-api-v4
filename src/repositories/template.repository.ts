@@ -1,17 +1,16 @@
-// Copyright IBM Corp. 2017,2018. All Rights Reserved.
-// Node module: @loopback/example-todo
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
-import { DefaultCrudRepository, juggler } from '@loopback/repository';
-import { Template } from '../models';
-import { inject } from '@loopback/core';
+import {DefaultCrudRepository} from '@loopback/repository';
+import {Template, TemplateRelations} from '../models';
+import {PostgresdbDataSource} from '../datasources';
+import {inject} from '@loopback/core';
 
 export class TemplateRepository extends DefaultCrudRepository<
   Template,
-  typeof Template.prototype.id
-  > {
-  constructor(@inject('datasources.db') dataSource: juggler.DataSource) {
+  typeof Template.prototype.id,
+  TemplateRelations
+> {
+  constructor(
+    @inject('datasources.postgresdb') dataSource: PostgresdbDataSource,
+  ) {
     super(Template, dataSource);
   }
 }

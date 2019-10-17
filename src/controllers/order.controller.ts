@@ -10,37 +10,47 @@ import {
   param,
   get,
   getFilterSchemaFor,
+  getModelSchemaRef,
   getWhereSchemaFor,
   patch,
+  put,
   del,
   requestBody,
 } from '@loopback/rest';
-import {inject} from '@loopback/context';
 import {Order} from '../models';
 import {OrderRepository} from '../repositories';
-import { AuthenticationBindings, authenticate } from '@loopback/authentication';
-import { UserProfile } from '@loopback/security';
 
 export class OrderController {
   constructor(
     @repository(OrderRepository)
     public orderRepository : OrderRepository,
-    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
   ) {}
 
-  // @post('/Orders', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Order model instance',
-  //       content: {'application/json': {schema: {'x-ts-type': Order}}},
-  //     },
-  //   },
-  // })
-  // async create(@requestBody() order: Order): Promise<Order> {
-  //   return await this.orderRepository.create(order);
-  // }
+  @post('/orders', {
+    responses: {
+      '200': {
+        description: 'Order model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Order)}},
+      },
+    },
+  })
+  async create(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Order, {
+            title: 'NewOrder',
+            exclude: ['id'],
+          }),
+        },
+      },
+    })
+    order: Omit<Order, 'id'>,
+  ): Promise<Order> {
+    return this.orderRepository.create(order);
+  }
 
-  @get('/Orders/count', {
+  @get('/orders/count', {
     responses: {
       '200': {
         description: 'Order model count',
@@ -49,30 +59,30 @@ export class OrderController {
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Order)) where?: Where,
+    @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
   ): Promise<Count> {
-    return await this.orderRepository.count(where);
+    return this.orderRepository.count(where);
   }
 
-  @get('/Orders', {
+  @get('/orders', {
     responses: {
       '200': {
         description: 'Array of Order model instances',
         content: {
           'application/json': {
-            schema: {type: 'array', items: {'x-ts-type': Order}},
+            schema: {type: 'array', items: getModelSchemaRef(Order)},
           },
         },
       },
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Order)) filter?: Filter,
+    @param.query.object('filter', getFilterSchemaFor(Order)) filter?: Filter<Order>,
   ): Promise<Order[]> {
-    return await this.orderRepository.find(filter);
+    return this.orderRepository.find(filter);
   }
 
-  /*@patch('/Orders', {
+  @patch('/orders', {
     responses: {
       '200': {
         description: 'Order PATCH success count',
@@ -81,25 +91,32 @@ export class OrderController {
     },
   })
   async updateAll(
-    @requestBody() order: Order,
-    @param.query.object('where', getWhereSchemaFor(Order)) where?: Where,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Order, {partial: true}),
+        },
+      },
+    })
+    order: Order,
+    @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
   ): Promise<Count> {
-    return await this.orderRepository.updateAll(order, where);
-  }*/
+    return this.orderRepository.updateAll(order, where);
+  }
 
-  @get('/Orders/{id}', {
+  @get('/orders/{id}', {
     responses: {
       '200': {
         description: 'Order model instance',
-        content: {'application/json': {schema: {'x-ts-type': Order}}},
+        content: {'application/json': {schema: getModelSchemaRef(Order)}},
       },
     },
   })
   async findById(@param.path.number('id') id: number): Promise<Order> {
-    return await this.orderRepository.findById(id);
+    return this.orderRepository.findById(id);
   }
 
-  /*@patch('/Orders/{id}', {
+  @patch('/orders/{id}', {
     responses: {
       '204': {
         description: 'Order PATCH success',
@@ -108,13 +125,33 @@ export class OrderController {
   })
   async updateById(
     @param.path.number('id') id: number,
-    @requestBody() order: Order,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Order, {partial: true}),
+        },
+      },
+    })
+    order: Order,
   ): Promise<void> {
     await this.orderRepository.updateById(id, order);
-  }*/
-  
-  @authenticate('BasicStrategy')
-  @del('/Orders/{id}', {
+  }
+
+  @put('/orders/{id}', {
+    responses: {
+      '204': {
+        description: 'Order PUT success',
+      },
+    },
+  })
+  async replaceById(
+    @param.path.number('id') id: number,
+    @requestBody() order: Order,
+  ): Promise<void> {
+    await this.orderRepository.replaceById(id, order);
+  }
+
+  @del('/orders/{id}', {
     responses: {
       '204': {
         description: 'Order DELETE success',

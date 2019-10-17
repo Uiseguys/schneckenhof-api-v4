@@ -10,20 +10,19 @@ import {
   param,
   get,
   getFilterSchemaFor,
+  getModelSchemaRef,
   getWhereSchemaFor,
   patch,
+  put,
   del,
   requestBody,
-  Response,
-  Request,
-  RestBindings
 } from '@loopback/rest';
-import { inject } from '@loopback/context';
-import { Wine } from '../models';
-import { WineRepository } from '../repositories';
-import { PackageRepository } from '../repositories';
-import { AuthenticationBindings, authenticate } from '@loopback/authentication';
-import { UserProfile } from '@loopback/security';
+import {inject} from '@loopback/context';
+import {Wine} from '../models';
+import {WineRepository} from '../repositories';
+import {PackageRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
 
 export class WineController {
   constructor(
@@ -31,78 +30,91 @@ export class WineController {
     public wineRepository: WineRepository,
     @repository(PackageRepository)
     public packageRepository: PackageRepository,
-    @inject(AuthenticationBindings.CURRENT_USER, { optional: true }) private user: UserProfile
-  ) { }
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private customUser: UserProfile,
+  ) {}
 
   @authenticate('BasicStrategy')
-  @post('/Wines', {
+  @post('/wines', {
     responses: {
       '200': {
         description: 'Wine model instance',
-        content: { 'application/json': { schema: { 'x-ts-type': Wine } } },
+        content: {'application/json': {schema: getModelSchemaRef(Wine)}},
       },
     },
   })
-  async create(@requestBody() wine: Wine, @inject(RestBindings.Http.REQUEST) request: Request, @inject(RestBindings.Http.RESPONSE) response: Response): Promise<Wine> {
-    wine.id = Math.floor(1000 + Math.random() * 9000);
-    return await this.wineRepository.create(wine);
+  async create(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Wine, {
+            title: 'NewWine',
+            exclude: ['id'],
+          }),
+        },
+      },
+    })
+    wine: Omit<Wine, 'id'>,
+  ): Promise<Wine> {
+    return this.wineRepository.create(wine);
   }
 
-
   @authenticate('BasicStrategy')
-  @get('/Wines/count', {
+  @get('/wines/count', {
     responses: {
       '200': {
         description: 'Wine model count',
-        content: { 'application/json': { schema: CountSchema } },
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Wine)) where?: Where,
+    @param.query.object('where', getWhereSchemaFor(Wine)) where?: Where<Wine>,
   ): Promise<Count> {
-    return await this.wineRepository.count(where);
+    return this.wineRepository.count(where);
   }
 
-
-  @get('/Wines', {
+  @get('/wines', {
     responses: {
       '200': {
         description: 'Array of Wine model instances',
         content: {
           'application/json': {
-            schema: { type: 'array', items: { 'x-ts-type': Wine } },
+            schema: {type: 'array', items: getModelSchemaRef(Wine)},
           },
         },
       },
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Wine)) filter?: Filter,
+    @param.query.object('filter', getFilterSchemaFor(Wine))
+    filter?: Filter<Wine>,
   ): Promise<object> {
-    let self = this
+    let self = this;
     let packagingData: any = [];
     return new Promise<object>((resolve, reject) => {
-      this.wineRepository.find(filter, function (err: any, wine: any) {
+      this.wineRepository.find(filter, function(err: any, wine: any) {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          self.packageRepository.find({}, function (err: any, packaging: any) {
+          self.packageRepository.find({}, function(err: any, packaging: any) {
             if (err) {
-              reject(err)
+              reject(err);
             } else {
               packagingData = packaging;
               for (let i = 0; i < wine.length; i++) {
-                let index= packagingData.findIndex((x:any)=> x.id ==  wine[i].packagingId);
-                if(index > -1){
-                  wine[i]['packaging']= packagingData[index];
+                let index = packagingData.findIndex(
+                  (x: any) => x.id == wine[i].packagingId,
+                );
+                if (index > -1) {
+                  wine[i]['packaging'] = packagingData[index];
                 }
               }
               resolve(wine);
             }
           });
         }
-      })
+      });
     });
     /*this.wineRepository.find(filter,function(err:any,wine:any){ 
      let winedata:any = {};
@@ -117,40 +129,44 @@ export class WineController {
       }
     });
     return await this.wineRepository.find(filter);*/
-
   }
 
-
-  @patch('/Wines', {
+  @patch('/wines', {
     responses: {
       '200': {
         description: 'Wine PATCH success count',
-        content: { 'application/json': { schema: CountSchema } },
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async updateAll(
-    @requestBody() wine: Wine,
-    @param.query.object('where', getWhereSchemaFor(Wine)) where?: Where,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Wine, {partial: true}),
+        },
+      },
+    })
+    wine: Wine,
+    @param.query.object('where', getWhereSchemaFor(Wine)) where?: Where<Wine>,
   ): Promise<Count> {
-    return await this.wineRepository.updateAll(wine, where);
+    return this.wineRepository.updateAll(wine, where);
   }
 
-
-  @get('/Wines/{id}', {
+  @get('/wines/{id}', {
     responses: {
       '200': {
         description: 'Wine model instance',
-        content: { 'application/json': { schema: { 'x-ts-type': Wine } } },
+        content: {'application/json': {schema: getModelSchemaRef(Wine)}},
       },
     },
   })
   async findById(@param.path.number('id') id: number): Promise<Wine> {
-    return await this.wineRepository.findById(id);
+    return this.wineRepository.findById(id);
   }
 
   @authenticate('BasicStrategy')
-  @patch('/Wines/{id}', {
+  @patch('/wines/{id}', {
     responses: {
       '204': {
         description: 'Wine PATCH success',
@@ -159,13 +175,35 @@ export class WineController {
   })
   async updateById(
     @param.path.number('id') id: number,
-    @requestBody() wine: Wine,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Wine, {partial: true}),
+        },
+      },
+    })
+    wine: Wine,
   ): Promise<void> {
     await this.wineRepository.updateById(id, wine);
   }
 
   @authenticate('BasicStrategy')
-  @del('/Wines/{id}', {
+  @put('/wines/{id}', {
+    responses: {
+      '204': {
+        description: 'Wine PUT success',
+      },
+    },
+  })
+  async replaceById(
+    @param.path.number('id') id: number,
+    @requestBody() wine: Wine,
+  ): Promise<void> {
+    await this.wineRepository.replaceById(id, wine);
+  }
+
+  @authenticate('BasicStrategy')
+  @del('/wines/{id}', {
     responses: {
       '204': {
         description: 'Wine DELETE success',

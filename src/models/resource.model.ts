@@ -1,11 +1,11 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({settings: {strict: false}})
 export class Resource extends Entity {
   @property({
     type: 'number',
     id: true,
-    default:0
+    generated: true,
   })
   id?: number;
 
@@ -31,9 +31,19 @@ export class Resource extends Entity {
   })
   type?: string;
 
-  
+  // Define well-known properties here
+
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
+
   constructor(data?: Partial<Resource>) {
     super(data);
   }
-
 }
+
+export interface ResourceRelations {
+  // describe navigational properties here
+}
+
+export type ResourceWithRelations = Resource & ResourceRelations;

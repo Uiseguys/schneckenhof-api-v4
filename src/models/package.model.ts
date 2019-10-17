@@ -1,12 +1,19 @@
-import { Model, model, property, Entity } from '@loopback/repository';
+import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({settings: {strict: false}})
 export class Package extends Entity {
   @property({
-    type: 'string',
-    required: false,
+    type: 'number',
+    id: true,
+    required: true,
+    generated: true,
   })
-  displayName: string;
+  id: number;
+
+  @property({
+    type: 'string',
+  })
+  displayName?: string;
 
   @property({
     type: 'number',
@@ -17,20 +24,25 @@ export class Package extends Entity {
 
   @property({
     type: 'string',
-    required: true
+    required: true,
   })
   unitOfMeasure: string;
 
-  @property({
-    type: 'number',
-    id: true,
-    default:0
-  })
-  id: number;
+  idInjection: false;
 
-  idInjection: false
+  // Define well-known properties here
+
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
 
   constructor(data?: Partial<Package>) {
     super(data);
   }
 }
+
+export interface PackageRelations {
+  // describe navigational properties here
+}
+
+export type PackageWithRelations = Package & PackageRelations;

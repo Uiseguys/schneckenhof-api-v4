@@ -10,130 +10,113 @@ import {
   param,
   get,
   getFilterSchemaFor,
+  getModelSchemaRef,
   getWhereSchemaFor,
   patch,
+  put,
   del,
   requestBody,
-  RestBindings,
-  Response,
-  Request
 } from '@loopback/rest';
-import {inject} from '@loopback/context';
-import { Setting } from '../models';
-import { SettingRepository } from '../repositories';
-import { AuthenticationBindings, authenticate } from '@loopback/authentication';
-import { UserProfile } from '@loopback/security';
+import {Setting} from '../models';
+import {SettingRepository} from '../repositories';
 
 export class SettingController {
   constructor(
     @repository(SettingRepository)
-    public settingRepository: SettingRepository,
-    @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) private user: UserProfile
-  ) { }
-  
-    @authenticate('BasicStrategy')
-    @post('/Settings/upsertWithWhere', {
-      responses: {
-        '200': {
-          description: 'Setting model instance',
-          content: { 'application/json': { schema: { 'x-ts-type': Setting } } },
+    public settingRepository : SettingRepository,
+  ) {}
+
+  @post('/settings', {
+    responses: {
+      '200': {
+        description: 'Setting model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
+      },
+    },
+  })
+  async create(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Setting, {
+            title: 'NewSetting',
+            exclude: ['id'],
+          }),
         },
       },
     })
-    async upsertWithWhere(@requestBody({
-      description: 'data',
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              key: {type: 'string'},
-              value: {
-                type: 'object',
-              }
-            },
-          },
-        },
-      },
-    })@inject(RestBindings.Http.REQUEST) request: Request,@inject(RestBindings.Http.RESPONSE) response: Response,@param.query.object('where', getWhereSchemaFor(Setting)) where?: Where): Promise<void> {
-       let self = this;
-      this.settingRepository.find({where: {key: request.body.key}},function(err:any, settingInstance:any){
-            if(settingInstance.length>0){
-              self.settingRepository.updateAll(request.body, {key:request.body.key});
-            }else{
-                let createjson ={
-                   id: Math.floor(1000 + Math.random() * 9000),
-                   key:request.body.key,
-                   value:request.body.value
-                }
-              self.settingRepository.create(createjson);
-            }
-      })
-      //return await this.settingRepository.create(setting);
-    }
-   
-  @get('/Settings/count', {
+    setting: Omit<Setting, 'id'>,
+  ): Promise<Setting> {
+    return this.settingRepository.create(setting);
+  }
+
+  @get('/settings/count', {
     responses: {
       '200': {
         description: 'Setting model count',
-        content: { 'application/json': { schema: CountSchema } },
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where,
+    @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where<Setting>,
   ): Promise<Count> {
-    return await this.settingRepository.count(where);
+    return this.settingRepository.count(where);
   }
 
-  @get('/Settings', {
+  @get('/settings', {
     responses: {
       '200': {
         description: 'Array of Setting model instances',
         content: {
           'application/json': {
-            schema: { type: 'array', items: { 'x-ts-type': Setting } },
+            schema: {type: 'array', items: getModelSchemaRef(Setting)},
           },
         },
       },
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Setting)) filter?: Filter,
+    @param.query.object('filter', getFilterSchemaFor(Setting)) filter?: Filter<Setting>,
   ): Promise<Setting[]> {
-    return await this.settingRepository.find(filter);
+    return this.settingRepository.find(filter);
   }
 
-  /*   @patch('/setting', {
-      responses: {
-        '200': {
-          description: 'Setting PATCH success count',
-          content: { 'application/json': { schema: CountSchema } },
+  @patch('/settings', {
+    responses: {
+      '200': {
+        description: 'Setting PATCH success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async updateAll(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Setting, {partial: true}),
         },
       },
     })
-    async updateAll(
-      @requestBody() setting: Setting,
-      @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where,
-    ): Promise<Count> {
-      return await this.settingRepository.updateAll(setting, where);
-    } */
+    setting: Setting,
+    @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where<Setting>,
+  ): Promise<Count> {
+    return this.settingRepository.updateAll(setting, where);
+  }
 
-  /*   @get('/setting/{id}', {
-      responses: {
-        '200': {
-          description: 'Setting model instance',
-          content: { 'application/json': { schema: { 'x-ts-type': Setting } } },
-        },
+  @get('/settings/{id}', {
+    responses: {
+      '200': {
+        description: 'Setting model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
       },
-    })
-    async findById(@param.path.number('id') id: number): Promise<Setting> {
-      return await this.settingRepository.findById(id);
-    } */
+    },
+  })
+  async findById(@param.path.number('id') id: number): Promise<Setting> {
+    return this.settingRepository.findById(id);
+  }
 
-
-  @authenticate('BasicStrategy')
-  @patch('/Settings/{id}', {
+  @patch('/settings/{id}', {
     responses: {
       '204': {
         description: 'Setting PATCH success',
@@ -142,54 +125,33 @@ export class SettingController {
   })
   async updateById(
     @param.path.number('id') id: number,
-    @requestBody() setting: Setting,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Setting, {partial: true}),
+        },
+      },
+    })
+    setting: Setting,
   ): Promise<void> {
     await this.settingRepository.updateById(id, setting);
   }
 
-  @post('/Settings/netlify', {
+  @put('/settings/{id}', {
     responses: {
-      '200': {
-        description: 'Setting model instance',
-        content: { 'application/json': { schema: { 'x-ts-type': Setting } } },
+      '204': {
+        description: 'Setting PUT success',
       },
     },
   })
-  async upsertWithWheres(@requestBody({
-    description: 'data',
-    content: {
-      'application/json': {
-        schema: {
-          type: 'object',
-          properties: {
-            key: { type: 'string' },
-            value: {
-              type: 'object',
-            }
-          },
-        },
-      },
-    },
-  }) @inject(RestBindings.Http.REQUEST) request: Request, @inject(RestBindings.Http.RESPONSE) response: Response, @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where): Promise<void> {
-    let self = this;
-    this.settingRepository.find({ where: { key: "netlifyHook" } }, function (err: any, settingInstance: any) {
-      if (settingInstance.length > 0) {
-        self.settingRepository.updateAll({value: request.body}, { key: "netlifyHook" });
-      } else {
-        let createjson = {
-          id: Math.floor(1000 + Math.random() * 9000),
-          key: "netlifyHook",
-          value: request.body,
-        }
-        self.settingRepository.create(createjson);
-      }
-    })
-    //return await this.settingRepository.create(setting);
+  async replaceById(
+    @param.path.number('id') id: number,
+    @requestBody() setting: Setting,
+  ): Promise<void> {
+    await this.settingRepository.replaceById(id, setting);
   }
 
-
-  @authenticate('BasicStrategy')
-  @del('/Settings/{id}', {
+  @del('/settings/{id}', {
     responses: {
       '204': {
         description: 'Setting DELETE success',

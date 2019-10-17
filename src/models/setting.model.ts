@@ -1,7 +1,14 @@
-import { model, Entity, property } from '@loopback/repository';
+import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({settings: {strict: false}})
 export class Setting extends Entity {
+  @property({
+    type: 'number',
+    id: true,
+    generated: true,
+  })
+  id?: number;
+
   @property({
     type: 'string',
     required: true,
@@ -14,15 +21,19 @@ export class Setting extends Entity {
   })
   value?: object;
 
-  @property({
-    type: 'number',
-    required: true,
-    id: true,
-    default: 0,
-  })
-  id: number;
+  // Define well-known properties here
+
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
 
   constructor(data?: Partial<Setting>) {
     super(data);
   }
 }
+
+export interface SettingRelations {
+  // describe navigational properties here
+}
+
+export type SettingsWithRelations = Setting & SettingRelations;
