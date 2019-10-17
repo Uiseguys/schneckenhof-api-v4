@@ -17,15 +17,21 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {News} from '../models';
 import {NewsRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
 
 export class NewsController {
   constructor(
     @repository(NewsRepository)
-    public newsRepository : NewsRepository,
+    public newsRepository: NewsRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private user: UserProfile,
   ) {}
 
+  @authenticate('BasicStrategy')
   @post('/news', {
     responses: {
       '200': {
@@ -77,11 +83,13 @@ export class NewsController {
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(News)) filter?: Filter<News>,
+    @param.query.object('filter', getFilterSchemaFor(News))
+    filter?: Filter<News>,
   ): Promise<News[]> {
     return this.newsRepository.find(filter);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/news', {
     responses: {
       '200': {
@@ -116,6 +124,7 @@ export class NewsController {
     return this.newsRepository.findById(id);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/news/{id}', {
     responses: {
       '204': {
@@ -137,6 +146,7 @@ export class NewsController {
     await this.newsRepository.updateById(id, news);
   }
 
+  @authenticate('BasicStrategy')
   @put('/news/{id}', {
     responses: {
       '204': {
@@ -151,6 +161,7 @@ export class NewsController {
     await this.newsRepository.replaceById(id, news);
   }
 
+  @authenticate('BasicStrategy')
   @del('/news/{id}', {
     responses: {
       '204': {

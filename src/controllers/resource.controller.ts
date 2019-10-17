@@ -16,17 +16,26 @@ import {
   put,
   del,
   requestBody,
+  RestBindings,
+  Response,
+  Request,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {Resource} from '../models';
 import {ResourceRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
+import * as multiparty from 'multiparty';
+import {Storage} from '@google-cloud/storage';
+const storage = new Storage();
 
 export class ResourceController {
   constructor(
     @repository(ResourceRepository)
-    public resourceRepository : ResourceRepository,
+    public resourceRepository: ResourceRepository, // @inject(AuthenticationBindings.CURRENT_USER, {optional: true}) // private user: UserProfile,
   ) {}
 
-  @post('/resources', {
+  @post('/resources/upload', {
     responses: {
       '200': {
         description: 'Resource model instance',
@@ -37,17 +46,91 @@ export class ResourceController {
   async create(
     @requestBody({
       content: {
-        'application/json': {
-          schema: getModelSchemaRef(Resource, {
-            title: 'NewResource',
-            exclude: ['id'],
-          }),
+        'multipart/form-data': {
+          'x-parser': 'stream',
+          schema: {
+            type: 'object',
+          },
         },
       },
     })
-    resource: Omit<Resource, 'id'>,
-  ): Promise<Resource> {
-    return this.resourceRepository.create(resource);
+    req: Request,
+  ): Promise<object> {
+    let statusCode = 500;
+    let message = 'Something went wrong';
+    const form = new multiparty.Form();
+    return new Promise(async (resolve, reject) => {
+      await form.parse(req, async (err, fields, files) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+        if (!files['file']) {
+          err = new Error('No file has been uploaded');
+          console.log(err);
+          return reject(err);
+        }
+        // Check to see if the file extension is that of an image
+        if (files['file']) {
+          let fileArr = [];
+          await files['file'].forEach(
+            (item: {path: string; originalFilename: string}, index: number) => {
+              const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(item.path);
+              if (fileExtensionCheck) {
+                // Use the google storage client library to upload the file
+                storage.bucket('schneckenhof-development').upload(
+                  item.path,
+                  {
+                    destination: `wine-images/${item.originalFilename}`,
+                  },
+                  (err, file) => {
+                    if (err != null) {
+                      console.log(err);
+                      return reject(err);
+                    }
+                    if (file) {
+                      fileArr[index] = file;
+                    }
+                  },
+                );
+              }
+            },
+          );
+          statusCode = 200;
+          message = 'Successfully Uploaded Image(s)';
+          resolve({status: statusCode, msg: message});
+        }
+      });
+    });
+  }
+
+  @get('/resources/download/{image}', {
+    responses: {
+      '200': {
+        description: 'Download an Image',
+        content: {
+          'image/jpeg': {
+            schema: {type: 'object'},
+          },
+        },
+      },
+    },
+  })
+  async findImage(
+    @param.path.string('image') image: string,
+    @inject(RestBindings.Http.RESPONSE) res: Response,
+  ): Promise<void> {
+    return await storage
+      .bucket('schneckenhof-development')
+      .file(`wine-images/${image}`)
+      .download()
+      .then(data => {
+        res.contentType('image/jpeg');
+        res.end(data[0]);
+      })
+      .catch(err => {
+        console.log(err.message);
+      });
   }
 
   @get('/resources/count', {
@@ -59,7 +142,8 @@ export class ResourceController {
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Resource)) where?: Where<Resource>,
+    @param.query.object('where', getWhereSchemaFor(Resource))
+    where?: Where<Resource>,
   ): Promise<Count> {
     return this.resourceRepository.count(where);
   }
@@ -77,7 +161,8 @@ export class ResourceController {
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Resource)) filter?: Filter<Resource>,
+    @param.query.object('filter', getFilterSchemaFor(Resource))
+    filter?: Filter<Resource>,
   ): Promise<Resource[]> {
     return this.resourceRepository.find(filter);
   }
@@ -99,7 +184,8 @@ export class ResourceController {
       },
     })
     resource: Resource,
-    @param.query.object('where', getWhereSchemaFor(Resource)) where?: Where<Resource>,
+    @param.query.object('where', getWhereSchemaFor(Resource))
+    where?: Where<Resource>,
   ): Promise<Count> {
     return this.resourceRepository.updateAll(resource, where);
   }

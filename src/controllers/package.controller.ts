@@ -17,15 +17,21 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {Package} from '../models';
 import {PackageRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
 
 export class PackageController {
   constructor(
     @repository(PackageRepository)
     public packageRepository: PackageRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private user: UserProfile,
   ) {}
 
+  @authenticate('BasicStrategy')
   @post('/packages', {
     responses: {
       '200': {
@@ -119,6 +125,7 @@ export class PackageController {
     return this.packageRepository.findById(id);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/packages/{id}', {
     responses: {
       '204': {
@@ -154,6 +161,7 @@ export class PackageController {
     await this.packageRepository.replaceById(id, customPackage);
   }
 
+  @authenticate('BasicStrategy')
   @del('/packages/{id}', {
     responses: {
       '204': {

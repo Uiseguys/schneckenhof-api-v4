@@ -17,13 +17,18 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {Order} from '../models';
 import {OrderRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
 
 export class OrderController {
   constructor(
     @repository(OrderRepository)
-    public orderRepository : OrderRepository,
+    public orderRepository: OrderRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private user: UserProfile,
   ) {}
 
   @post('/orders', {
@@ -77,7 +82,8 @@ export class OrderController {
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Order)) filter?: Filter<Order>,
+    @param.query.object('filter', getFilterSchemaFor(Order))
+    filter?: Filter<Order>,
   ): Promise<Order[]> {
     return this.orderRepository.find(filter);
   }
@@ -116,6 +122,7 @@ export class OrderController {
     return this.orderRepository.findById(id);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/orders/{id}', {
     responses: {
       '204': {
@@ -137,6 +144,7 @@ export class OrderController {
     await this.orderRepository.updateById(id, order);
   }
 
+  @authenticate('BasicStrategy')
   @put('/orders/{id}', {
     responses: {
       '204': {
@@ -151,6 +159,7 @@ export class OrderController {
     await this.orderRepository.replaceById(id, order);
   }
 
+  @authenticate('BasicStrategy')
   @del('/orders/{id}', {
     responses: {
       '204': {
