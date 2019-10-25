@@ -17,15 +17,21 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {inject} from '@loopback/context';
 import {Setting} from '../models';
 import {SettingRepository} from '../repositories';
+import {AuthenticationBindings, authenticate} from '@loopback/authentication';
+import {UserProfile} from '@loopback/security';
 
 export class SettingController {
   constructor(
     @repository(SettingRepository)
-    public settingRepository : SettingRepository,
+    public settingRepository: SettingRepository,
+    @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
+    private user: UserProfile,
   ) {}
 
+  @authenticate('BasicStrategy')
   @post('/settings', {
     responses: {
       '200': {
@@ -50,6 +56,7 @@ export class SettingController {
     return this.settingRepository.create(setting);
   }
 
+  @authenticate('BasicStrategy')
   @get('/settings/count', {
     responses: {
       '200': {
@@ -59,11 +66,13 @@ export class SettingController {
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where<Setting>,
+    @param.query.object('where', getWhereSchemaFor(Setting))
+    where?: Where<Setting>,
   ): Promise<Count> {
     return this.settingRepository.count(where);
   }
 
+  @authenticate('BasicStrategy')
   @get('/settings', {
     responses: {
       '200': {
@@ -77,11 +86,13 @@ export class SettingController {
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Setting)) filter?: Filter<Setting>,
+    @param.query.object('filter', getFilterSchemaFor(Setting))
+    filter?: Filter<Setting>,
   ): Promise<Setting[]> {
     return this.settingRepository.find(filter);
   }
 
+  @authenticate('BasicStrategy')
   @patch('/settings', {
     responses: {
       '200': {
@@ -99,11 +110,13 @@ export class SettingController {
       },
     })
     setting: Setting,
-    @param.query.object('where', getWhereSchemaFor(Setting)) where?: Where<Setting>,
+    @param.query.object('where', getWhereSchemaFor(Setting))
+    where?: Where<Setting>,
   ): Promise<Count> {
     return this.settingRepository.updateAll(setting, where);
   }
 
+  @authenticate('BasicStrategy')
   @get('/settings/{id}', {
     responses: {
       '200': {
@@ -116,41 +129,7 @@ export class SettingController {
     return this.settingRepository.findById(id);
   }
 
-  @patch('/settings/{id}', {
-    responses: {
-      '204': {
-        description: 'Setting PATCH success',
-      },
-    },
-  })
-  async updateById(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Setting, {partial: true}),
-        },
-      },
-    })
-    setting: Setting,
-  ): Promise<void> {
-    await this.settingRepository.updateById(id, setting);
-  }
-
-  @put('/settings/{id}', {
-    responses: {
-      '204': {
-        description: 'Setting PUT success',
-      },
-    },
-  })
-  async replaceById(
-    @param.path.number('id') id: number,
-    @requestBody() setting: Setting,
-  ): Promise<void> {
-    await this.settingRepository.replaceById(id, setting);
-  }
-
+  @authenticate('BasicStrategy')
   @del('/settings/{id}', {
     responses: {
       '204': {
