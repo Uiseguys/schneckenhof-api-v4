@@ -1,5 +1,5 @@
 import {repository, Where} from '@loopback/repository';
-import {post, Request, Response, RestBindings} from '@loopback/rest';
+import {post, requestBody, Response, RestBindings} from '@loopback/rest';
 import {inject} from '@loopback/context';
 import {Order} from '../models';
 import {OrderRepository, SettingRepository} from '../repositories';
