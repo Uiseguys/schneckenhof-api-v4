@@ -26,7 +26,7 @@ import {UserProfile} from '@loopback/security';
 import * as nodemailer from 'nodemailer';
 import * as emailtemplate from 'email-templates';
 
-export class OrderController {
+export class PaymentController {
   constructor(
     @repository(OrderRepository)
     public orderRepository: OrderRepository,

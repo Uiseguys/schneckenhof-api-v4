@@ -5,5 +5,6 @@ export * from './order.controller';
 export * from './package.controller';
 export * from './resource.controller';
 export * from './setting.controller';
+export * from './payment.controller';
 export * from './template.controller';
 export * from './wine.controller';
