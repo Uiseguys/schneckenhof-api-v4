@@ -32,7 +32,7 @@ export class PaymentController {
     })
     payOrder: any,
     @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<any> {
+  ): any {
     const self = this;
     console.log(payOrder);
     return this.orderRepository.create(
@@ -43,7 +43,7 @@ export class PaymentController {
         total: payOrder.total,
         details: payOrder,
       } as Order,
-      (err: any) => {
+      (err: any, response: any) => {
         if (err) {
           console.log(err);
           res.statusCode = 500;
