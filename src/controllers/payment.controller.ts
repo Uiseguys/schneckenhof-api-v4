@@ -60,6 +60,7 @@ export class PaymentController {
       if (request.body != null) {
         this.orderRepository.create(
           {
+            id: Math.floor(1000 + Math.random() * 900000),
             type: 'email',
             email: reqBody.email,
             total: reqBody.total,
@@ -125,7 +126,7 @@ export class PaymentController {
                       if (error) {
                         console.log('Error occured');
                         console.log(error.message);
-                        return;
+                        reject(err.message);
                       }
                       resolve({
                         email: 'Email is sent',
