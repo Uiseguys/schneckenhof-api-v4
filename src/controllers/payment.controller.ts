@@ -50,14 +50,15 @@ export class PaymentController {
         },
       },
     })
-    payment: Payment,
+    order: Order,
     @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ): Promise<object> {
     return new Promise<object>((resolve, reject) => {
       const self = this;
       if (request.body != null) {
-        this.orderRepository.create(payment, (err: any, res: any) => {
+        console.log(order);
+        this.orderRepository.create(order, (err: any, res: any) => {
           if (err) {
             reject(err);
           } else {
