@@ -16,6 +16,8 @@ import {
   put,
   del,
   requestBody,
+  Request,
+  Response,
   RestBindings,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
