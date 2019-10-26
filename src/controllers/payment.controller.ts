@@ -53,7 +53,7 @@ export class PaymentController {
     payment: object,
     @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
-  ): Promise<object> {
+  ): Promise<object | void> {
     return new Promise<object>((resolve, reject) => {
       const self = this;
       const reqBody = request.body as any;
