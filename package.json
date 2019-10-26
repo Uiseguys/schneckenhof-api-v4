@@ -1,6 +1,6 @@
 {
   "name": "schneckenhof-api",
-  "version": "2.2.8",
+  "version": "2.3.0",
   "description": "Schneckenhof Api",
   "keywords": [
     "loopback-application",
