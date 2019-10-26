@@ -50,26 +50,46 @@ export class ResourceController {
       },
     },
   })
-  async getAll(): Promise<object> {
+  async getAll(
+    @param.query.object('filter', getFilterSchemaFor(Resource))
+    filter?: Filter<Resource>,
+  ): Promise<object> {
     const allFiles = await storage
       .bucket('schneckenhof-development')
       .getFiles({prefix: 'wine-images'});
     // Apply shift to remove first entry which is the folder name
     // As Google Cloud Storage perceives it as an object as well
-    const noFolderObject = (item: {name: string}) => {
-      // Return item only if it does not include any of the wine-images
-      // folder name
-      return !('wine-images/' == item.name);
+    // Custom filter object function
+    let count = 0;
+    const filterObj = (item: {name: string}) => {
+      if (filter != undefined) {
+        if (filter.skip != undefined && filter.limit != undefined) {
+          if (filter.skip == 0 && count <= filter.limit) {
+            console.log(count);
+            count++;
+            return !('images/' == item.name);
+          } else if (
+            count > filter.skip * filter.limit &&
+            count <= (filter.skip + 1) * filter.limit
+          ) {
+            count++;
+            return !('images/' == item.name);
+          } else {
+            count++;
+            return !true;
+          }
+        }
+      } else {
+        return !('images/' == item.name);
+      }
     };
-    const mappedFiles = await allFiles[0]
-      .filter(noFolderObject)
-      .map(async item => {
-        return {
-          id: item.id,
-          name: item.name,
-          url: `/resources/download/${item.name.replace('wine-images/', '')}`,
-        };
-      });
+    const mappedFiles = await allFiles[0].filter(filterObj).map(async item => {
+      return {
+        id: item.id,
+        name: item.name,
+        url: `/resources/download/${item.name.replace('wine-images/', '')}`,
+      };
+    });
 
     return await Promise.all(mappedFiles)
       .then(data => {
