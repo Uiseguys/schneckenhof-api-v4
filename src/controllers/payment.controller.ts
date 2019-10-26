@@ -1,27 +1,7 @@
-import {
-  Count,
-  CountSchema,
-  Filter,
-  repository,
-  Where,
-} from '@loopback/repository';
-import {
-  post,
-  param,
-  get,
-  getFilterSchemaFor,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  patch,
-  put,
-  del,
-  requestBody,
-  Request,
-  Response,
-  RestBindings,
-} from '@loopback/rest';
+import {repository, Where} from '@loopback/repository';
+import {post, Request, Response, RestBindings} from '@loopback/rest';
 import {inject} from '@loopback/context';
-import {Payment, Order} from '../models';
+import {Order} from '../models';
 import {OrderRepository, SettingRepository} from '../repositories';
 import {AuthenticationBindings, authenticate} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
@@ -40,105 +20,122 @@ export class PaymentController {
 
   @post('/payment/checkout')
   async checkout(
-    @requestBody({
-      description: 'Checkout Data',
-      content: {
-        'application/x-www-form-urlencoded': {
-          schema: {
-            type: 'object',
-          },
-        },
-      },
-    })
-    payment: object,
-    @inject(RestBindings.Http.REQUEST) request: Request,
-    @inject(RestBindings.Http.RESPONSE) response: Response,
-  ): Promise<object | void> {
-    return new Promise<object>((resolve, reject) => {
-      const self = this;
-      const reqBody = request.body as any;
-      if (request.body != null) {
-        this.orderRepository.create(
-          {
-            id: Math.floor(1000 + Math.random() * 900000),
-            type: 'email',
-            email: reqBody.email,
-            total: reqBody.total,
-            details: reqBody,
-          } as Order,
-          (err: any, res: any) => {
+    //@requestBody({
+    //description: 'Checkout Data',
+    //content: {
+    //'application/x-www-form-urlencoded': {
+    //schema: {
+    //type: 'object',
+    //},
+    //},
+    //},
+    //})
+    //payment: object,
+    @inject(RestBindings.Http.REQUEST) req: Request,
+    @inject(RestBindings.Http.RESPONSE) res: Response,
+  ): Promise<Order> {
+    const self = this;
+    const reqBody = req.body as any;
+    return this.orderRepository.create(
+      {
+        id: Math.floor(1000 + Math.random() * 900000),
+        type: 'email',
+        email: reqBody.email,
+        total: reqBody.total,
+        details: reqBody,
+      } as Order,
+      (err: any, res: any) => {
+        if (err) {
+          console.log(err);
+          res.statusCode = 500;
+          res.send({
+            error: {statusCode: 500, message: err.message},
+          });
+        } else {
+          self.settingRepository.find({where: {key: 'email'}}, function(
+            err: any,
+            settingInstance: any,
+          ) {
             if (err) {
-              reject(err);
-            } else {
-              self.settingRepository.find({where: {key: 'email'}}, function(
-                err: any,
-                settingInstance: any,
-              ) {
-                const emailSetting = settingInstance[0].value;
-
-                const toAddresses = (emailSetting.to || '').split(',');
-                const email = new emailtemplate({
-                  message: {
-                    from: emailSetting.from,
-                  },
-                  transport: {
-                    jsonTransport: true,
-                  },
-                  preview: true,
-                });
-
-                email
-                  .send({
-                    template: 'invoice',
-                    message: {to: toAddresses},
-                    locals: {
-                      realname: reqBody.realname,
-                      items: reqBody.items,
-                      email: reqBody.email,
-                      street: reqBody.street,
-                      zip: reqBody.zip,
-                      city: reqBody.city,
-                      phone: reqBody.phone,
-                      message: reqBody.message,
-                    },
-                  })
-                  .then(function(emailtemplate: any) {
-                    const transporter = nodemailer.createTransport({
-                      host: 'smtp.strato.de',
-                      port: 465,
-                      auth: {
-                        user: 'bestellungen@weingut-schneckenhof.de',
-                        pass: 'Bestellungen@@@@@@',
-                      },
-                    });
-
-                    const templates = JSON.parse(emailtemplate.message);
-                    const message = {
-                      from: templates.from.address,
-                      to: templates.to[0].address,
-                      subject: templates.subject,
-                      text: templates.text,
-                      html: templates.html,
-                      cc: emailSetting.cc,
-                    };
-
-                    transporter.sendMail(message, function(error) {
-                      if (error) {
-                        console.log('Error occured');
-                        console.log(error.message);
-                        reject(err.message);
-                      }
-                      resolve({
-                        email: 'Email is sent',
-                        href: '/danke',
-                      });
-                    });
-                  });
+              console.log(err);
+              res.statusCode = 500;
+              res.send({
+                error: {statusCode: 500, message: err.message},
               });
             }
-          },
-        );
-      }
-    });
+            const emailSetting = settingInstance[0].value;
+            const toAddresses = (emailSetting.to || '').split(',');
+            const email = new emailtemplate({
+              message: {
+                from: emailSetting.from,
+              },
+              transport: {
+                jsonTransport: true,
+              },
+              preview: true,
+            });
+
+            email
+              .send({
+                template: 'invoice',
+                message: {to: toAddresses},
+                locals: {
+                  realname: reqBody.realname,
+                  items: reqBody.items,
+                  email: reqBody.email,
+                  street: reqBody.street,
+                  zip: reqBody.zip,
+                  city: reqBody.city,
+                  phone: reqBody.phone,
+                  message: reqBody.message,
+                },
+              })
+              .then((emailtemplate: any) => {
+                const transporter = nodemailer.createTransport({
+                  host: 'smtp.strato.de',
+                  port: 465,
+                  auth: {
+                    user: 'bestellungen@weingut-schneckenhof.de',
+                    pass: 'Bestellungen@@@@@@',
+                  },
+                });
+
+                const templates = JSON.parse(emailtemplate.message);
+                const message = {
+                  from: templates.from.address,
+                  to: templates.to[0].address,
+                  subject: templates.subject,
+                  text: templates.text,
+                  html: templates.html,
+                  cc: emailSetting.cc,
+                };
+
+                transporter.sendMail(message, function(err) {
+                  if (err) {
+                    console.log('Error occured');
+                    console.log(err.message);
+                    res.statusCode = 500;
+                    res.send({
+                      error: {statusCode: 500, message: err.message},
+                    });
+                  }
+                  res.statusCode = 200;
+                  res.send({
+                    email: 'Email is sent',
+                    href: '/danke',
+                  });
+                });
+              })
+              .catch((err: Error) => {
+                console.log(err);
+                res.statusCode = 500;
+                res.send({
+                  error: {statusCode: 500, message: err.message},
+                });
+              });
+          });
+        }
+      },
+    );
   }
 }
