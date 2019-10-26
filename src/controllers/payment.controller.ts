@@ -32,7 +32,7 @@ export class PaymentController {
     })
     payOrder: any,
     @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<object> {
+  ): Promise<Order> {
     const self = this;
     console.log(payOrder);
     return this.orderRepository.create(
