@@ -50,86 +50,93 @@ export class PaymentController {
         },
       },
     })
-    order: Order,
+    payment: object,
     @inject(RestBindings.Http.REQUEST) request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ): Promise<object> {
     return new Promise<object>((resolve, reject) => {
       const self = this;
+      const reqBody = request.body as any;
       if (request.body != null) {
-        console.log(order);
-        this.orderRepository.create(order, (err: any, res: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            self.settingRepository.find({where: {key: 'email'}}, function(
-              err: any,
-              settingInstance: any,
-            ) {
-              const emailSetting = settingInstance[0].value;
+        this.orderRepository.create(
+          {
+            type: 'email',
+            email: reqBody.email,
+            total: reqBody.total,
+            details: reqBody,
+          } as Order,
+          (err: any, res: any) => {
+            if (err) {
+              reject(err);
+            } else {
+              self.settingRepository.find({where: {key: 'email'}}, function(
+                err: any,
+                settingInstance: any,
+              ) {
+                const emailSetting = settingInstance[0].value;
 
-              const toAddresses = (emailSetting.to || '').split(',');
-              const email = new emailtemplate({
-                message: {
-                  from: emailSetting.from,
-                },
-                transport: {
-                  jsonTransport: true,
-                },
-                preview: true,
-              });
-              const reqBody = request.body as any;
-
-              email
-                .send({
-                  template: 'invoice',
-                  message: {to: toAddresses},
-                  locals: {
-                    realname: reqBody.realname,
-                    items: reqBody.items,
-                    email: reqBody.email,
-                    street: reqBody.street,
-                    zip: reqBody.zip,
-                    city: reqBody.city,
-                    phone: reqBody.phone,
-                    message: reqBody.message,
+                const toAddresses = (emailSetting.to || '').split(',');
+                const email = new emailtemplate({
+                  message: {
+                    from: emailSetting.from,
                   },
-                })
-                .then(function(emailtemplate: any) {
-                  const transporter = nodemailer.createTransport({
-                    host: 'smtp.strato.de',
-                    port: 465,
-                    auth: {
-                      user: 'bestellungen@weingut-schneckenhof.de',
-                      pass: 'Bestellungen@@@@@@',
+                  transport: {
+                    jsonTransport: true,
+                  },
+                  preview: true,
+                });
+
+                email
+                  .send({
+                    template: 'invoice',
+                    message: {to: toAddresses},
+                    locals: {
+                      realname: reqBody.realname,
+                      items: reqBody.items,
+                      email: reqBody.email,
+                      street: reqBody.street,
+                      zip: reqBody.zip,
+                      city: reqBody.city,
+                      phone: reqBody.phone,
+                      message: reqBody.message,
                     },
-                  });
+                  })
+                  .then(function(emailtemplate: any) {
+                    const transporter = nodemailer.createTransport({
+                      host: 'smtp.strato.de',
+                      port: 465,
+                      auth: {
+                        user: 'bestellungen@weingut-schneckenhof.de',
+                        pass: 'Bestellungen@@@@@@',
+                      },
+                    });
 
-                  const templates = JSON.parse(emailtemplate.message);
-                  const message = {
-                    from: templates.from.address,
-                    to: templates.to[0].address,
-                    subject: templates.subject,
-                    text: templates.text,
-                    html: templates.html,
-                    cc: emailSetting.cc,
-                  };
+                    const templates = JSON.parse(emailtemplate.message);
+                    const message = {
+                      from: templates.from.address,
+                      to: templates.to[0].address,
+                      subject: templates.subject,
+                      text: templates.text,
+                      html: templates.html,
+                      cc: emailSetting.cc,
+                    };
 
-                  transporter.sendMail(message, function(error) {
-                    if (error) {
-                      console.log('Error occured');
-                      console.log(error.message);
-                      return;
-                    }
-                    resolve({
-                      email: 'Email is sent',
-                      href: '/danke',
+                    transporter.sendMail(message, function(error) {
+                      if (error) {
+                        console.log('Error occured');
+                        console.log(error.message);
+                        return;
+                      }
+                      resolve({
+                        email: 'Email is sent',
+                        href: '/danke',
+                      });
                     });
                   });
-                });
-            });
-          }
-        });
+              });
+            }
+          },
+        );
       }
     });
   }
