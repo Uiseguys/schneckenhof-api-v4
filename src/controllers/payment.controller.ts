@@ -20,29 +20,28 @@ export class PaymentController {
 
   @post('/payment/checkout')
   async checkout(
-    //@requestBody({
-    //description: 'Checkout Data',
-    //content: {
-    //'application/x-www-form-urlencoded': {
-    //schema: {
-    //type: 'object',
-    //},
-    //},
-    //},
-    //})
-    //payment: object,
-    @inject(RestBindings.Http.REQUEST) req: Request,
+    @requestBody({
+      description: 'Checkout Data',
+      content: {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+          },
+        },
+      },
+    })
+    payOrder: any,
     @inject(RestBindings.Http.RESPONSE) res: Response,
   ): Promise<Order> {
     const self = this;
-    const reqBody = req.body as any;
+    console.log(payOrder);
     return this.orderRepository.create(
       {
         id: Math.floor(1000 + Math.random() * 900000),
         type: 'email',
-        email: reqBody.email,
-        total: reqBody.total,
-        details: reqBody,
+        email: payOrder.email,
+        total: payOrder.total,
+        details: payOrder,
       } as Order,
       (err: any, res: any) => {
         if (err) {
@@ -80,14 +79,14 @@ export class PaymentController {
                 template: 'invoice',
                 message: {to: toAddresses},
                 locals: {
-                  realname: reqBody.realname,
-                  items: reqBody.items,
-                  email: reqBody.email,
-                  street: reqBody.street,
-                  zip: reqBody.zip,
-                  city: reqBody.city,
-                  phone: reqBody.phone,
-                  message: reqBody.message,
+                  realname: payOrder.realname,
+                  items: payOrder.items,
+                  email: payOrder.email,
+                  street: payOrder.street,
+                  zip: payOrder.zip,
+                  city: payOrder.city,
+                  phone: payOrder.phone,
+                  message: payOrder.message,
                 },
               })
               .then((emailtemplate: any) => {
