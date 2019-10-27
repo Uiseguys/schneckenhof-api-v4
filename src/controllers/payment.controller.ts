@@ -32,98 +32,87 @@ export class PaymentController {
     })
     payOrder: any,
     @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<object> {
-    const self = this;
-    console.log(payOrder);
-    return new Promise((resolve, reject) => {
-      this.orderRepository.create(
-        {
-          id: Math.floor(1000 + Math.random() * 900000),
-          type: 'email',
-          email: payOrder.email,
-          total: payOrder.total,
-          details: payOrder,
-        } as Order,
-        (err: any, response: any) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            self.settingRepository.find({where: {key: 'email'}}, function(
-              err: any,
-              settingInstance: any,
-            ) {
-              if (err) {
-                console.log(err);
-                reject(err);
-              }
-              const emailSetting = settingInstance[0].value;
-              const toAddresses = (emailSetting.to || '').split(',');
-              const email = new emailtemplate({
-                message: {
-                  from: emailSetting.from,
-                },
-                transport: {
-                  jsonTransport: true,
-                },
-                preview: true,
-              });
-
-              email
-                .send({
-                  template: 'invoice',
-                  message: {to: toAddresses},
-                  locals: {
-                    realname: payOrder.realname,
-                    items: payOrder.items,
-                    email: payOrder.email,
-                    street: payOrder.street,
-                    zip: payOrder.zip,
-                    city: payOrder.city,
-                    phone: payOrder.phone,
-                    message: payOrder.message,
-                  },
-                })
-                .then((emailtemplate: any) => {
-                  const transporter = nodemailer.createTransport({
-                    host: 'smtp.strato.de',
-                    port: 465,
-                    auth: {
-                      user: 'bestellungen@weingut-schneckenhof.de',
-                      pass: 'Bestellungen@@@@@@',
-                    },
-                  });
-
-                  const templates = JSON.parse(emailtemplate.message);
-                  const message = {
-                    from: templates.from.address,
-                    to: templates.to[0].address,
-                    subject: templates.subject,
-                    text: templates.text,
-                    html: templates.html,
-                    cc: emailSetting.cc,
-                  };
-
-                  transporter.sendMail(message, function(err) {
-                    if (err) {
-                      console.log('Error occured');
-                      console.log(err.message);
-                      reject(err);
-                    }
-                    resolve({
-                      email: 'Email is sent',
-                      href: '/danke',
-                    });
-                  });
-                })
-                .catch((err: Error) => {
-                  console.log(err);
-                  reject(err);
-                });
-            });
-          }
-        },
-      );
+  ): Promise<object | undefined> {
+    const emailSetting: any = await this.settingRepository.find({
+      where: {key: 'email'},
     });
+    const toAddresses = await (emailSetting[0].value.to || '').split(',');
+    const email = new emailtemplate({
+      message: {
+        from: emailSetting[0].value.from,
+      },
+      transport: {
+        jsonTransport: true,
+      },
+      preview: true,
+    });
+    if (payOrder.items) {
+      return await email
+        .send({
+          template: 'invoice',
+          message: {to: toAddresses},
+          locals: {
+            realname: payOrder.realname,
+            items: payOrder.items,
+            email: payOrder.email,
+            street: payOrder.street,
+            zip: payOrder.zip,
+            city: payOrder.city,
+            phone: payOrder.phone,
+            message: payOrder.message,
+          },
+        })
+        .then(async (emailtemplate: any) => {
+          const transporter = nodemailer.createTransport({
+            host: 'smtp.strato.de',
+            port: 465,
+            auth: {
+              //user: 'bestellungen@weingut-schneckenhof.de',
+              //pass: 'Bestellungen@@@@@@',
+              user: 'newsletter@new-toni.press',
+              pass: 'Newsletter@@',
+            },
+          });
+
+          const templates = JSON.parse(emailtemplate.message);
+          const message = {
+            from: `"Bestellungen Schneckenhof" <${emailSetting[0].value.from}>`,
+            to: emailSetting[0].value.to,
+            cc: emailSetting[0].value.cc,
+            subject: '✨New Wine Order',
+            text: templates.text,
+            html: templates.html,
+          };
+
+          const sendMessage = await transporter.sendMail(message);
+
+          console.log(
+            'New Order Email has been sent of messageId: %s',
+            sendMessage.messageId,
+          );
+
+          await this.orderRepository.create({
+            id: Math.floor(1000 + Math.random() * 900000),
+            type: 'email',
+            email: payOrder.email,
+            total: payOrder.total,
+            details: payOrder,
+          } as Order);
+
+          res.statusCode = 200;
+          res.send({
+            email: 'Email is sent',
+            href: '/danke',
+          });
+        });
+    } else {
+      res.statusCode = 500;
+      res.send({
+        error: {
+          statusCode: 500,
+          message: 'No Items Have Been Selected',
+        },
+      });
+    }
   }
 }
