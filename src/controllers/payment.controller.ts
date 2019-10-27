@@ -69,6 +69,7 @@ export class PaymentController {
             auth: {
               user: 'bestellungen@weingut-schneckenhof.de',
               pass: 'Bestellungen@@@@@@',
+            },
           });
 
           const templates = JSON.parse(emailtemplate.message);
