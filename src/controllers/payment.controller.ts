@@ -67,11 +67,8 @@ export class PaymentController {
             host: 'smtp.strato.de',
             port: 465,
             auth: {
-              //user: 'bestellungen@weingut-schneckenhof.de',
-              //pass: 'Bestellungen@@@@@@',
-              user: 'newsletter@new-toni.press',
-              pass: 'Newsletter@@',
-            },
+              user: 'bestellungen@weingut-schneckenhof.de',
+              pass: 'Bestellungen@@@@@@',
           });
 
           const templates = JSON.parse(emailtemplate.message);
