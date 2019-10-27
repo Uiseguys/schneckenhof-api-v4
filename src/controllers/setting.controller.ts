@@ -56,6 +56,42 @@ export class SettingController {
     return this.settingRepository.create(setting);
   }
 
+  @post('/settings/netlify', {
+    responses: {
+      '200': {
+        description: 'Settings model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
+      },
+    },
+  })
+  async netlifyHook(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {type: 'object'},
+        },
+      },
+    })
+    reqBody: object,
+    @param.query.string('deploy')
+    deploy: string,
+  ): Promise<Count | Setting> {
+    const findNetlify = await this.settingRepository.find({
+      where: {key: 'netlifyHook'},
+    });
+    if (findNetlify.length > 0) {
+      return this.settingRepository.updateAll(
+        {value: reqBody},
+        {key: 'netlifyHook'},
+      );
+    }
+    return this.settingRepository.create({
+      id: Math.floor(1000 + Math.random() * 9000),
+      key: 'netlifyHook',
+      value: reqBody,
+    } as Setting);
+  }
+
   @authenticate('BasicStrategy')
   @get('/settings/count', {
     responses: {
