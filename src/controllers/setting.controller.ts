@@ -35,8 +35,8 @@ export class SettingController {
   @post('/settings', {
     responses: {
       '200': {
-        description: 'Setting model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
+        description: 'Settings model instance',
+        content: {'application/json': {schema: {type: 'object'}}},
       },
     },
   })
@@ -44,16 +44,22 @@ export class SettingController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Setting, {
-            title: 'NewSetting',
-            exclude: ['id'],
-          }),
+          schema: getModelSchemaRef(Setting, {partial: true}),
         },
       },
     })
-    setting: Omit<Setting, 'id'>,
-  ): Promise<Setting> {
-    return this.settingRepository.create(setting);
+    settings: Setting,
+    @param.query.object('where', getWhereSchemaFor(Setting))
+    where?: Where<Setting>,
+  ): Promise<Setting | Count> {
+    const findkey = await this.settingRepository.find({
+      where: {key: settings.key},
+    });
+    if (findkey.length > 0) {
+      return this.settingRepository.updateAll(settings, {key: settings.key});
+    }
+    settings.id = Math.floor(1000 + Math.random() * 9000);
+    return this.settingRepository.create(settings);
   }
 
   @post('/settings/netlify', {
