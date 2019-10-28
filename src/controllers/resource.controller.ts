@@ -67,20 +67,20 @@ export class ResourceController {
           if (filter.skip == 0 && count <= filter.limit) {
             console.log(count);
             count++;
-            return !('images/' == item.name);
+            return !('wine-images/' == item.name);
           } else if (
             count > filter.skip * filter.limit &&
             count <= (filter.skip + 1) * filter.limit
           ) {
             count++;
-            return !('images/' == item.name);
+            return !('wine-images/' == item.name);
           } else {
             count++;
             return !true;
           }
         }
       } else {
-        return !('images/' == item.name);
+        return !('wine-images/' == item.name);
       }
     };
     const mappedFiles = await allFiles[0].filter(filterObj).map(async item => {
