@@ -1,5 +1,4 @@
 export * from './custom-user.repository';
-export * from './logs.repository';
 export * from './news.repository';
 export * from './order.repository';
 export * from './package.repository';
@@ -7,3 +6,4 @@ export * from './resource.repository';
 export * from './setting.repository';
 export * from './template.repository';
 export * from './wine.repository';
+export * from './newsletter.repository';

@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({settings: {strict: false}})
-export class Logs extends Entity {
+export class Newsletter extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -12,34 +12,26 @@ export class Logs extends Entity {
   @property({
     type: 'string',
     required: true,
+    index: {unique: true},
   })
-  hostname: string;
+  email: string;
 
   @property({
-    type: 'string',
-    required: true,
+    type: 'boolean',
+    default: true,
   })
-  url: string;
-
-  @property({
-    type: 'object',
-  })
-  APIResponseTime?: object;
+  subscribed?: boolean;
 
   @property({
     type: 'string',
   })
-  OverallResponseTime?: string;
-
-  @property({
-    type: 'string',
-  })
-  msg?: string;
+  unsubscribe_hash?: string;
 
   @property({
     type: 'date',
+    default: '$now',
   })
-  time?: string;
+  create_time?: string;
 
   // Define well-known properties here
 
@@ -47,13 +39,13 @@ export class Logs extends Entity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
-  constructor(data?: Partial<Logs>) {
+  constructor(data?: Partial<Newsletter>) {
     super(data);
   }
 }
 
-export interface LogsRelations {
+export interface NewsletterRelations {
   // describe navigational properties here
 }
 
-export type LogsWithRelations = Logs & LogsRelations;
+export type NewsletterWithRelations = Newsletter & NewsletterRelations;

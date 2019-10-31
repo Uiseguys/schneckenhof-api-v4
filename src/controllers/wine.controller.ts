@@ -16,6 +16,8 @@ import {
   put,
   del,
   requestBody,
+  Response,
+  RestBindings,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
 import {Wine} from '../models';
@@ -87,48 +89,41 @@ export class WineController {
     },
   })
   async find(
+    @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.query.object('filter', getFilterSchemaFor(Wine))
     filter?: Filter<Wine>,
   ): Promise<object> {
-    let self = this;
-    let packagingData: any = [];
-    return new Promise<object>((resolve, reject) => {
-      this.wineRepository.find(filter, function(err: any, wine: any) {
-        if (err) {
-          reject(err);
-        } else {
-          self.packageRepository.find({}, function(err: any, packaging: any) {
-            if (err) {
-              reject(err);
-            } else {
-              packagingData = packaging;
-              for (let i = 0; i < wine.length; i++) {
-                let index = packagingData.findIndex(
-                  (x: any) => x.id == wine[i].packagingId,
-                );
-                if (index > -1) {
-                  wine[i]['packaging'] = packagingData[index];
-                }
-              }
-              resolve(wine);
-            }
-          });
-        }
+    let index;
+    const filteredWine = await this.wineRepository.find(filter);
+    const packages = await this.packageRepository.find({});
+    if (!(filteredWine.length > 0)) {
+      res.statusCode = 500;
+      return {
+        error: {
+          statusCode: 500,
+          message:
+            'No Wines Have Been Found, Check Your Query or Check Your Wines Database',
+        },
+      };
+    }
+    if (!(packages.length > 0)) {
+      res.statusCode = 500;
+      return {
+        error: {
+          statusCode: 500,
+          message: 'No Package Entries have Been Found',
+        },
+      };
+    }
+    return filteredWine.map(item => {
+      index = packages.findIndex((x: any) => {
+        x.id == item.packagingId;
       });
-    });
-    /*this.wineRepository.find(filter,function(err:any,wine:any){ 
-     let winedata:any = {};
-     if(wine.length>0){
-         for(let i=0; i<wine.length; i++){
-            self.packageRepository.find({where: {id: wine[i].packagingId}},function(err:any, packaging:any){
-                 //console.log(packaging);
-                 wine[i]["packaging"] = packaging[0];
-                 console.log(wine[i]);
-            })
-         }
+      if (index > -1) {
+        item['packaging'] = packages[index];
       }
+      return item;
     });
-    return await this.wineRepository.find(filter);*/
   }
 
   @patch('/wines', {

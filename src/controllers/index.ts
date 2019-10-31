@@ -1,5 +1,4 @@
 export * from './custom-user.controller';
-export * from './logs.controller';
 export * from './news.controller';
 export * from './order.controller';
 export * from './package.controller';

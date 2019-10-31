@@ -105,12 +105,12 @@ export class PaymentController {
         });
     } else {
       res.statusCode = 500;
-      res.send({
+      return {
         error: {
           statusCode: 500,
           message: 'No Items Have Been Selected',
         },
-      });
+      };
     }
   }
 }

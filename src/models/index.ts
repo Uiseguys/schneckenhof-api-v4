@@ -1,4 +1,3 @@
-export * from './logs.model';
 export * from './news.model';
 export * from './order.model';
 export * from './package.model';
@@ -8,3 +7,4 @@ export * from './setting.model';
 export * from './template.model';
 export * from './custom-user.model';
 export * from './wine.model';
+export * from './newsletter.model';
