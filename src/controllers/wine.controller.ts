@@ -117,10 +117,10 @@ export class WineController {
     }
     return filteredWine.map(item => {
       index = packages.findIndex((x: any) => {
-        x.id == item.packagingId;
+        return x.id == item.packagingId;
       });
       if (index > -1) {
-        item['packaging'] = packages[index];
+        item.packaging = packages[index];
       }
       return item;
     });
