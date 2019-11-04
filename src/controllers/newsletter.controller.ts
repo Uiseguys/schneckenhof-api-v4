@@ -282,7 +282,7 @@ export class NewsletterController {
         `${new Date().toISOString()} - GET REQUEST - /newsletters/unsubscribe - No Email is associated with provided path hash`,
       ),
         (res.statusCode = 302);
-      res.location('https://newtoni-press.netlify.com');
+      res.location('https://www.weingut-schneckenhof.de');
       return res.end();
     }
 
@@ -311,7 +311,7 @@ export class NewsletterController {
         `${new Date().toISOString()} - GET REQUEST - /newsletters/unsubscribe - Email Settings Have Not Been Set`,
       );
       res.statusCode = 302;
-      res.location('https://newtoni-press.netlify.com');
+      res.location('https://www.weingut-schneckenhof.de');
       return res.end();
     }
 
@@ -350,7 +350,7 @@ export class NewsletterController {
     );
 
     res.statusCode = 302;
-    res.location('https://newtoni-press.netlify.com/unsubscribe');
+    res.location('https://www.weingut-schneckenhof.de/unsubscribe');
     return res.end();
   }
 
