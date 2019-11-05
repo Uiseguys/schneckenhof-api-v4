@@ -1,6 +1,4 @@
-p #{realname},
-a(href=`mailto:${email}` )  (#{email})
-span  hat folgendes bestellt:
+span  Sie haben folgendes bestellt:
 ul
   each val in items
     li= val.quantity + 'X ' + val.name
