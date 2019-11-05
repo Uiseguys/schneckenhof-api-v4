@@ -76,8 +76,8 @@ export class PaymentController {
           const message = {
             from: `"Bestellungen Schneckenhof" <${emailSetting[0].value.from}>`,
             to: emailSetting[0].value.to,
-            cc: emailSetting[0].value.cc,
-            subject: '✨New Wine Order',
+            bcc: emailSetting[0].value.bcc,
+            subject: '✨Neue Bestellung',
             text: templates.text,
             html: templates.html,
           };
