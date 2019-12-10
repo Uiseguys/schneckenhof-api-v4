@@ -6,37 +6,39 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
   get,
-  getFilterSchemaFor,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  patch,
-  put,
+  post,
   del,
-  requestBody,
-  RestBindings,
-  Response,
+  param,
   Request,
+  requestBody,
+  Response,
+  getWhereSchemaFor,
+  getModelSchemaRef,
+  getFilterSchemaFor,
+  RestBindings,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
-import {Resource} from '../models';
-// import {ResourceRepository} from '../repositories';
+import {Storage} from '@google-cloud/storage';
 import {AuthenticationBindings, authenticate} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
+import {Resource} from '../models';
 import * as multiparty from 'multiparty';
-import {Storage} from '@google-cloud/storage';
-const storage = new Storage();
+import {promisify} from 'util';
+import * as fs from 'fs';
 
+// Instantiation of Google Storage Client
+const storage = new Storage();
+/**
+ * A simple controller to handle Google Bucket Storage Operations
+ */
 export class ResourceController {
   constructor(
-    // @repository(ResourceRepository)
-    // public resourceRepository: ResourceRepository,
     @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
     private user: UserProfile,
   ) {}
 
+  @authenticate('BasicStrategy')
   @get('/resources/all', {
     responses: {
       '200': {
@@ -50,7 +52,7 @@ export class ResourceController {
       },
     },
   })
-  async getAll(
+  async getAllFiles(
     @param.query.object('filter', getFilterSchemaFor(Resource))
     filter?: Filter<Resource>,
   ): Promise<object> {
@@ -59,8 +61,8 @@ export class ResourceController {
       .getFiles({prefix: 'wine-images'});
     // Apply shift to remove first entry which is the folder name
     // As Google Cloud Storage perceives it as an object as well
-    // Custom filter object function
     let count = 0;
+    // Custom filter object function
     const filterObj = (item: {name: string}) => {
       if (filter != undefined) {
         if (filter.skip != undefined && filter.limit != undefined) {
@@ -91,18 +93,26 @@ export class ResourceController {
     });
   }
 
+  @authenticate('BasicStrategy')
   @post('/resources/upload', {
     responses: {
       '200': {
-        description: 'Resource model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Resource)}},
+        description: 'Successfully Uploaded File to Google Bucket Storage',
+        content: {
+          'application/json': {
+            schema: {type: 'object'},
+          },
+        },
       },
     },
   })
   async create(
     @requestBody({
+      description: 'multipart/form-data value.',
+      require: true,
       content: {
         'multipart/form-data': {
+          // Skip body parsing
           'x-parser': 'stream',
           schema: {
             type: 'object',
@@ -113,6 +123,9 @@ export class ResourceController {
     req: Request,
     @inject(RestBindings.Http.RESPONSE) res: Response,
   ): Promise<object | void> {
+    // This function checks if the incoming requet has a folder query
+    // If it does it returns the provided string if doesn't it returns an
+    // empty string
     const form = new multiparty.Form();
     return new Promise((resolve, reject) => {
       form.parse(req, async (err, fields, files) => {
@@ -132,7 +145,7 @@ export class ResourceController {
         if (!files['file']) {
           err = new Error('No file has been uploaded');
           console.log(
-            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload - ${
+            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
               err.message
             }`,
           );
@@ -159,7 +172,7 @@ export class ResourceController {
                   (err, file) => {
                     if (err != null) {
                       console.log(
-                        `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload - ${
+                        `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
                           err.message
                         }`,
                       );
@@ -205,15 +218,14 @@ export class ResourceController {
   async findImage(
     @param.path.string('image') image: string,
     @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<Buffer | object | void> {
+  ): Promise<Buffer | object> {
     return storage
       .bucket('schneckenhof-development')
       .file(`wine-images/${image}`)
       .download()
       .then(data => {
-	res.contentType('image/jpeg');
-	//res.writeHead(200, {'Content-Type': 'image/jpeg'});
-	res.end(data[0]);
+        res.contentType('image/jpeg');
+        return data[0];
       })
       .catch(err => {
         console.log(
@@ -269,6 +281,7 @@ export class ResourceController {
       });
   }
 
+  @authenticate('BasicStrategy')
   @del('/resources/{id}', {
     responses: {
       '204': {
@@ -302,105 +315,4 @@ export class ResourceController {
         };
       });
   }
-
-  // Commented out as they are not needed
-  // @get('/resources', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Array of Resource model instances',
-  //       content: {
-  //         'application/json': {
-  //           schema: {type: 'array', items: getModelSchemaRef(Resource)},
-  //         },
-  //       },
-  //     },
-  //   },
-  // })
-  // async find(
-  //   @param.query.object('filter', getFilterSchemaFor(Resource))
-  //   filter?: Filter<Resource>,
-  // ): Promise<Resource[]> {
-  //   return this.resourceRepository.find(filter);
-  // }
-
-  // @patch('/resources', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Resource PATCH success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async updateAll(
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(Resource, {partial: true}),
-  //       },
-  //     },
-  //   })
-  //   resource: Resource,
-  //   @param.query.object('where', getWhereSchemaFor(Resource))
-  //   where?: Where<Resource>,
-  // ): Promise<Count> {
-  //   return this.resourceRepository.updateAll(resource, where);
-  // }
-
-  // @get('/resources/{id}', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Resource model instance',
-  //       content: {'application/json': {schema: getModelSchemaRef(Resource)}},
-  //     },
-  //   },
-  // })
-  // async findById(@param.path.number('id') id: number): Promise<Resource> {
-  //   return this.resourceRepository.findById(id);
-  // }
-
-  // @patch('/resources/{id}', {
-  //   responses: {
-  //     '204': {
-  //       description: 'Resource PATCH success',
-  //     },
-  //   },
-  // })
-  // async updateById(
-  //   @param.path.number('id') id: number,
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(Resource, {partial: true}),
-  //       },
-  //     },
-  //   })
-  //   resource: Resource,
-  // ): Promise<void> {
-  //   await this.resourceRepository.updateById(id, resource);
-  // }
-
-  // @put('/resources/{id}', {
-  //   responses: {
-  //     '204': {
-  //       description: 'Resource PUT success',
-  //     },
-  //   },
-  // })
-  // async replaceById(
-  //   @param.path.number('id') id: number,
-  //   @requestBody() resource: Resource,
-  // ): Promise<void> {
-  //   await this.resourceRepository.replaceById(id, resource);
-  // }
-
-  // @del('/resources/{id}', {
-  //   responses: {
-  //     '204': {
-  //       description: 'Resource DELETE success',
-  //     },
-  //   },
-  // })
-  // async deleteById(@param.path.number('id') id: number): Promise<void> {
-  //   await this.resourceRepository.deleteById(id);
-  // }
 }
