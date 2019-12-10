@@ -205,14 +205,15 @@ export class ResourceController {
   async findImage(
     @param.path.string('image') image: string,
     @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<Buffer | object> {
+  ): Promise<Buffer | object | void> {
     return storage
       .bucket('schneckenhof-development')
       .file(`wine-images/${image}`)
       .download()
       .then(data => {
-        res.contentType('image/jpeg');
-        return data[0];
+	res.contentType('image/jpeg');
+	//res.writeHead(200, {'Content-Type': 'image/jpeg'});
+	res.end(data[0]);
       })
       .catch(err => {
         console.log(
