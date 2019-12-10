@@ -12,11 +12,14 @@ if (require.main === module) {
         // useful when used with OpenAPI-to-GraphQL to locate your application
         setServersFromRequest: true,
       },
+      apiExplorer: {
+        disabled: true,
+      },
       cors: {
         origin: [
-          "https://schneckenhof-admin-panel.netlify.com",
-          "https://schneckenhof-site-dev.netlify.com",
-          "https://www.weingut-schneckenhof.de",
+          'https://schneckenhof-admin-panel.netlify.com',
+          'https://schneckenhof-site-dev.netlify.com',
+          'https://www.weingut-schneckenhof.de',
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
