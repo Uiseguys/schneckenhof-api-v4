@@ -22,7 +22,7 @@ export class PaymentController {
     @requestBody({
       description: 'Checkout Data',
       content: {
-        'application/x-www-form-urlencoded': {
+        'application/json': {
           schema: {
             type: 'object',
           },
@@ -35,6 +35,15 @@ export class PaymentController {
     const emailSetting: any = await this.settingRepository.find({
       where: {key: 'email'},
     });
+    if (!(emailSetting.length > 0)) {
+      res.statusCode = 500;
+      return {
+        error: {
+          statusCode: 500,
+          message: 'Email Settings Have Not Been Retrieved',
+        },
+      };
+    }
     const bccAddresses = await (emailSetting[0].value.bcc || '').split(',');
     const email = new emailtemplate({
       message: {
@@ -42,16 +51,25 @@ export class PaymentController {
       },
       send: true,
       transport: {
-        host: 'smtp.strato.de',
-        port: 465,
-        auth: {
-          user: 'bestellungen@weingut-schneckenhof.de',
-          pass: 'Bestellungen@@@@@@',
-        },
+	host: 'smtp.strato.de',
+	port: 465,
+	auth: {
+	  user: 'bestellungen@weingut-schneckenhof.de',
+	  pass: 'Bestellungen@@@@@@',
+	},
       },
       preview: false,
     });
-    if (payOrder.items) {
+    if (!payOrder.items) {
+      res.statusCode = 500;
+      return {
+        error: {
+          statusCode: 500,
+          message: 'No Items Have Been Selected',
+        },
+      };
+    }
+    if (payOrder.items.length > 0) {
       await email
         .send({
           template: 'invoice-admin',
@@ -88,13 +106,13 @@ export class PaymentController {
         })
         .then(async () => {
           console.log('New Order Email has been sent to Client');
-          await this.orderRepository.create({
-            id: Math.floor(1000 + Math.random() * 900000),
-            type: 'email',
-            email: payOrder.email,
-            total: payOrder.total,
-            details: payOrder,
-          } as Order);
+	  await this.orderRepository.create({
+	    id: Math.floor(1000 + Math.random() * 900000),
+	    type: 'email',
+	    email: payOrder.email,
+	    total: payOrder.total,
+	    details: payOrder,
+	  } as Order);
 
           res.statusCode = 200;
           res.send({
