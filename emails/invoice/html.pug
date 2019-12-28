@@ -1,7 +1,7 @@
 span  Sie haben folgendes bestellt:
 ul
   each val in items
-    li= val.quantity + 'X ' + val.name
+    li= val.quantity + 'X ' + val.packaging.displayName + ' ' + val.name
 
 p Street: #{street}
 p Zip: #{zip}
