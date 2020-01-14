@@ -18,6 +18,7 @@ if (require.main === module) {
       cors: {
         origin: [
           'https://schneckenhof-admin-panel.netlify.com',
+          'https://weingut-admin.netlify.com',
           'https://schneckenhof-site-dev.netlify.com',
           'https://www.weingut-schneckenhof.de',
         ],
