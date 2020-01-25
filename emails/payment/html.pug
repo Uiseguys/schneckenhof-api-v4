@@ -2,7 +2,7 @@ p #{realname} has just paid for following on paypal:
 
 ul
   each val in items
-    li= val.quantity + 'X ' + val.name
+li= val.quantity + ' x ' + val.packaging.displayName + ' ' + val.name + ' ' + val.varietal
 
 p Invoice ID: #{invoiceId}
 
