@@ -20,6 +20,7 @@ if (require.main === module) {
           'https://schneckenhof-admin-panel.netlify.app',
           'https://schneckenhof-admin-panel.netlify.com',
           'https://schneckenhof-site-dev.netlify.com',
+          'https://schneckenhof-site-dev.netlify.app',
           'https://www.weingut-schneckenhof.de',
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
