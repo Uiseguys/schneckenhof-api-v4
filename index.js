@@ -16,11 +16,7 @@ if (require.main === module) {
         disabled: true,
       },
       cors: {
-        origin: [
-          'https://schneckenhof-admin-panel.netlify.app',
-          'https://schneckenhof-site-dev.netlify.com',
-          'https://www.weingut-schneckenhof.de',
-        ],
+        origin: '*',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
         optionsSuccessStatus: 204,
