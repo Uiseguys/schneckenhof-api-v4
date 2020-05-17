@@ -2,11 +2,5 @@
   "name": "postgresdb",
   "connector": "postgresql",
   "debug": true,
-  "url": "postgres://jxcwimeodwgpmc:13da80997732b28d1c0bda92ab3935a88789c90232932071aec44ae91e8d6720@ec2-54-217-206-65.eu-west-1.compute.amazonaws.com:5432/d4891e9of66unk",
-  "host": "ec2-54-217-206-65.eu-west-1.compute.amazonaws.com",
-  "port": 5432,
-  "user": "jxcwimeodwgpmc",
-  "password": "13da80997732b28d1c0bda92ab3935a88789c90232932071aec44ae91e8d6720",
-  "database": "d4891e9of66unk",
-  "ssl": false
+  "url": "postgres://jxcwimeodwgpmc:13da80997732b28d1c0bda92ab3935a88789c90232932071aec44ae91e8d6720@ec2-54-217-206-65.eu-west-1.compute.amazonaws.com:5432/d4891e9of66unk?ssl=true"
 }
