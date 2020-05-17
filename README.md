@@ -14,7 +14,7 @@ technologies, languages and concepts.
 Lastly, you'll need to install the LoopBack 4 CLI toolkit:
 
 ```sh
-npm i -g @loopback/cli
+yarn global add @loopback/cli
 ```
 
 ### Steps
@@ -38,9 +38,9 @@ npm i -g @loopback/cli
 
 6. go to project root
 
-7. npm install
+7. yarn install
 
-8. npm start
+8. yarn start
 
 Note: the code will automatically create all tables
 
