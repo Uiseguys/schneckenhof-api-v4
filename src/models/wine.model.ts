@@ -1,7 +1,7 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {Package} from './package.model';
 
-@model({settings: {strict: false}})
+@model({settings: {strict: true}})
 export class Wine extends Entity {
   @property({
     type: 'number',
