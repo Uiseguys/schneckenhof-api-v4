@@ -20,6 +20,7 @@ if (require.main === module) {
           'https://schneckenhof-admin-panel.netlify.app',
           'https://schneckenhof-site-dev.netlify.app',
           'https://www.weingut-schneckenhof.de',
+          'ec2-54-217-206-65.eu-west-1.compute.amazonaws.com',
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
@@ -29,6 +30,7 @@ if (require.main === module) {
       },
     },
   };
+
   application.main(config).catch(err => {
     console.error('Cannot start the application.', err);
     process.exit(1);
