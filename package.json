@@ -1,6 +1,6 @@
 {
   "name": "schneckenhof-api",
-  "version": "2.11.3",
+  "version": "2.11.2",
   "description": "Schneckenhof Api",
   "keywords": [
     "loopback-application",
@@ -13,7 +13,6 @@
   "scripts": {
     "build": "lb-tsc",
     "build:watch": "lb-tsc --watch",
-    "heroku-postbuild": "npm run build",
     "clean": "lb-clean dist *.tsbuildinfo",
     "lint": "npm run prettier:check && npm run eslint",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
