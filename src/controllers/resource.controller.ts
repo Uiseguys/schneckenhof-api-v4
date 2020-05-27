@@ -27,16 +27,14 @@ import * as multiparty from 'multiparty';
 import {promisify} from 'util';
 import * as fs from 'fs';
 
-// Instantiation of Google Storage Client
-const storage = new Storage();
-/**
- * A simple controller to handle Google Bucket Storage Operations
- */
 export class ResourceController {
+  private cloudinary: object | any;
   constructor(
     @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
     private user: UserProfile,
-  ) {}
+  ) {
+    this.cloudinary = require('cloudinary').v2;
+  }
 
   @authenticate('BasicStrategy')
   @get('/resources/all', {
@@ -53,44 +51,42 @@ export class ResourceController {
     },
   })
   async getAllFiles(
+    @inject(RestBindings.Http.RESPONSE) res: Response,
     @param.query.object('filter', getFilterSchemaFor(Resource))
     filter?: Filter<Resource>,
   ): Promise<object> {
-    const allFiles = await storage
-      .bucket('schneckenhof-development')
-      .getFiles({prefix: 'wine-images'});
-    // Apply shift to remove first entry which is the folder name
-    // As Google Cloud Storage perceives it as an object as well
-    let count = 0;
-    // Custom filter object function
-    const filterObj = (item: {name: string}) => {
-      if (filter != undefined) {
-        if (filter.skip != undefined && filter.limit != undefined) {
-          if (filter.skip == 0 && count <= filter.limit) {
-            count++;
-            return !('wine-images/' == item.name);
-          } else if (
-            count > filter.skip * filter.limit &&
-            count <= (filter.skip + 1) * filter.limit
-          ) {
-            count++;
-            return !('wine-images/' == item.name);
-          } else {
-            count++;
-            return !true;
+    return new Promise((resolve, reject) =>
+      this.cloudinary.api.resources_by_tag(
+        'wines',
+        {max_results: 500},
+        (err: object | null, data: any | object | null) => {
+          if (err) {
+            reject({
+              error: {
+                statusCode: 500,
+                message: 'Internal Server Error',
+              },
+            });
           }
-        }
-      } else {
-        return !('wine-images/' == item.name);
-      }
-    };
-    return allFiles[0].filter(filterObj).map(item => {
-      return {
-        id: item.id,
-        name: item.name,
-        url: `/resources/download/${item.name.replace('wine-images/', '')}`,
-      };
-    });
+          if (data.resources.length > 0) {
+            resolve(
+              data.resources.reduce(
+                (acc: [null | object], value: object | any) => {
+                  if (value.public_id != 'wines') {
+                    acc.push({
+                      public_id: value.public_id,
+                      url: value.secure_url,
+                    });
+                  }
+                  return acc;
+                },
+                [],
+              ),
+            );
+          }
+        },
+      ),
+    );
   }
 
   @authenticate('BasicStrategy')
@@ -158,22 +154,26 @@ export class ResourceController {
         }
         // Check to see if the file extension is that of an image
         if (files['file']) {
-          let fileArr = [];
+          const fileArr = [];
           await files['file'].forEach(
             (item: {path: string; originalFilename: string}, index: number) => {
-              const fileExtensionCheck = /[^.][jpe?g|png|gif]$/.test(item.path);
+              const fileExtensionCheck = /\.(jpe?g|png|gif)$/.test(item.path);
               if (fileExtensionCheck) {
-                // Use the google storage client library to upload the file
-                storage.bucket('schneckenhof-development').upload(
+                // Use the Cloudinary client library to upload the file
+                let itemFilename = item.originalFilename.replace(
+                  /\.(jpe?g|png|gif)$/g,
+                  '',
+                );
+                itemFilename = itemFilename.replace(/\s/g, '_');
+                console.log(itemFilename);
+                this.cloudinary.uploader.upload(
                   item.path,
-                  {
-                    destination: `wine-images/${item.originalFilename}`,
-                  },
-                  (err, file) => {
-                    if (err != null) {
+                  {public_id: `wines/${itemFilename}`, tags: 'wines'},
+                  (newErr: null | Error, file: null | Response) => {
+                    if (newErr != null) {
                       console.log(
                         `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
-                          err.message
+                          newErr.message
                         }`,
                       );
                       res.statusCode = 500;
@@ -185,62 +185,18 @@ export class ResourceController {
                       });
                     }
                     if (file) {
+                      console.log(file);
                       fileArr[index] = file;
+                      resolve(file);
                     }
                   },
                 );
               }
             },
           );
-          resolve({
-            info: {
-              statusCode: 200,
-              message: 'Successfully Uploaded Image(s)',
-            },
-          });
         }
       });
     });
-  }
-
-  @get('/resources/download/{image}', {
-    responses: {
-      '200': {
-        description: 'Download an Image',
-        content: {
-          'image/jpeg': {
-            schema: {type: 'object'},
-          },
-        },
-      },
-    },
-  })
-  async findImage(
-    @param.path.string('image') image: string,
-    @inject(RestBindings.Http.RESPONSE) res: Response,
-  ): Promise<Buffer | object> {
-    return storage
-      .bucket('schneckenhof-development')
-      .file(`wine-images/${image}`)
-      .download()
-      .then(data => {
-        res.contentType('image/jpeg');
-        return data[0];
-      })
-      .catch(err => {
-        console.log(
-          `${new Date().toISOString()} - Error - GET REQUEST - /resources/download - ${
-            err.message
-          }`,
-        );
-        res.statusCode = 500;
-        return {
-          error: {
-            statusCode: 500,
-            message: 'Internal Server Error',
-          },
-        };
-      });
   }
 
   @get('/resources/count', {
@@ -256,33 +212,27 @@ export class ResourceController {
     @param.query.object('where', getWhereSchemaFor(Resource))
     where?: Where<Resource>,
   ): Promise<Count | object> {
-    return storage
-      .bucket('schneckenhof-development')
-      .getFiles({prefix: 'wine-images'})
-      .then(data => {
-        const noFolderObject = (item: {name: string}) => {
-          return !('wine-images/' == item.name);
-        };
-        return {count: data[0].filter(noFolderObject).length};
-      })
-      .catch(err => {
-        console.log(
-          `${new Date().toISOString()} - Error - GET REQUEST - /resources/count - ${
-            err.message
-          }`,
-        );
-        res.statusCode = 500;
-        return {
-          error: {
-            statusCode: 500,
-            message: 'Internal Server Error',
-          },
-        };
-      });
+    return new Promise((resolve, reject) =>
+      this.cloudinary.api.resources_by_tag(
+        'wines',
+        {max_results: 500},
+        (err: object | null, data: any | object | null) => {
+          if (err) {
+            reject({
+              error: {
+                statusCode: 500,
+                message: 'Internal Server Error',
+              },
+            });
+          }
+          resolve({count: data.resources.length});
+        },
+      ),
+    );
   }
 
   @authenticate('BasicStrategy')
-  @del('/resources/{id}', {
+  @del('/resources/{public_id}', {
     responses: {
       '204': {
         description: 'File DELETED successfully',
@@ -291,28 +241,22 @@ export class ResourceController {
   })
   async deleteFile(
     @inject(RestBindings.Http.RESPONSE) res: Response,
-    @param.path.string('id') id: string,
+    @param.path.string('public_id') public_id: string,
   ): Promise<object> {
-    return storage
-      .bucket('schneckenhof-development')
-      .file(decodeURIComponent(id))
-      .delete()
-      .then(data => {
+    return this.cloudinary.api.delete_resources(
+      [decodeURIComponent(public_id)],
+      (err: null | object, data: null | object) => {
+        if (err) {
+          res.statusCode = 500;
+          return {
+            error: {
+              statusCode: 500,
+              message: 'Internal Server Error',
+            },
+          };
+        }
         return data;
-      })
-      .catch(err => {
-        console.log(
-          `${new Date().toISOString()} - Error - DELETE REQUEST - /resources - ${
-            err.message
-          }`,
-        );
-        res.statusCode = 500;
-        return {
-          error: {
-            statusCode: 500,
-            message: 'Internal Server Error',
-          },
-        };
-      });
+      },
+    );
   }
 }
