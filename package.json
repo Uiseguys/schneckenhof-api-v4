@@ -46,7 +46,6 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@google-cloud/storage": "^3.5.0",
     "@loopback/authentication": "^3.2.0",
     "@loopback/boot": "^1.5.9",
     "@loopback/context": "^1.23.3",

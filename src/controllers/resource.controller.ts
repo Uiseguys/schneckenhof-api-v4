@@ -19,7 +19,6 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
-import {Storage} from '@google-cloud/storage';
 import {AuthenticationBindings, authenticate} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {Resource} from '../models';
