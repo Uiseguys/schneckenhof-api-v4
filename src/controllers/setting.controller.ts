@@ -48,14 +48,13 @@ export class SettingController {
       },
     })
     settings: Setting,
-    @param.query.object('where', getWhereSchemaFor(Setting))
-    where?: Where<Setting>,
   ): Promise<Setting | Count> {
+    const where = {key: settings.key};
     const findkey = await this.settingRepository.find({
-      where: {key: settings.key},
+      where: where,
     });
     if (findkey.length > 0) {
-      return this.settingRepository.updateAll(settings, {key: settings.key});
+      return this.settingRepository.updateAll(settings, where);
     }
     settings.id = Math.floor(1000 + Math.random() * 9000);
     return this.settingRepository.create(settings);
@@ -78,8 +77,6 @@ export class SettingController {
       },
     })
     reqBody: object,
-    @param.query.string('deploy')
-    deploy: string,
   ): Promise<Count | Setting> {
     const findNetlify = await this.settingRepository.find({
       where: {key: 'netlifyHook'},
@@ -180,5 +177,38 @@ export class SettingController {
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.settingRepository.deleteById(id);
+  }
+
+  // NETLIFY <--> INCOMING WEBHOOKS HANDLING
+  @authenticate('BasicStrategy')
+  @post('/settings/netlify/deploy', {
+    responses: {
+      '200': {
+        description: 'Settings model instance',
+        content: {'application/json': {schema: {type: 'object'}}},
+      },
+    },
+  })
+  async deployResponse(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {type: 'object'},
+        },
+      },
+    })
+    buildHook: object,
+  ): Promise<object> {
+    const where = {key: 'netlifyHookResponse'};
+    const findKey = await this.settingRepository.find({where: where});
+    if (findKey.length > 0) {
+      return this.settingRepository.updateAll({value: buildHook}, where);
+    }
+    const id = Math.floor(1000 + Math.random() * 9000);
+    return this.settingRepository.create({
+      id: id,
+      key: 'netlifyHookResponse',
+      value: buildHook,
+    });
   }
 }
