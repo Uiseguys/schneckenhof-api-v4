@@ -199,7 +199,7 @@ export class SettingController {
     })
     buildHook: object,
   ): Promise<object> {
-    const where = {key: 'netlifyHookResponse'};
+    const where = {key: 'netlifyHook'};
     const findKey = await this.settingRepository.find({where: where});
     if (findKey.length > 0) {
       return this.settingRepository.updateAll({value: buildHook}, where);
@@ -207,7 +207,7 @@ export class SettingController {
     const id = Math.floor(1000 + Math.random() * 9000);
     return this.settingRepository.create({
       id: id,
-      key: 'netlifyHookResponse',
+      key: 'netlifyHook',
       value: buildHook,
     });
   }
