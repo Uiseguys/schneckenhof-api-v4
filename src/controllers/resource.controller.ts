@@ -23,7 +23,6 @@ import {AuthenticationBindings, authenticate} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 import {Resource} from '../models';
 import * as multiparty from 'multiparty';
-import {promisify} from 'util';
 import * as fs from 'fs';
 
 export class ResourceController {

@@ -57,8 +57,24 @@ export class WineController {
       },
     })
     wine: Omit<Wine, 'id'>,
-  ): Promise<Wine> {
-    return this.wineRepository.create(wine);
+  ): Promise<Wine | object> {
+    try {
+      const allWines = await this.wineRepository.find({});
+      if (allWines) {
+        const maxId = allWines.reduce((acc, value) => {
+          if (value['id']) return acc >= value['id'] ? acc : value['id'];
+          return acc;
+        }, 0);
+        wine['id'] = maxId + 1;
+      } else {
+        wine['id'] = 1;
+      }
+      return this.wineRepository.create(wine);
+    } catch (err) {
+      return {
+        message: 'Sorry, Something went wrong',
+      };
+    }
   }
 
   @authenticate('BasicStrategy')

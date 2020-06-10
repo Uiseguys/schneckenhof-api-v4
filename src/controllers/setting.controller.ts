@@ -50,48 +50,23 @@ export class SettingController {
     settings: Setting,
   ): Promise<Setting | Count> {
     const where = {key: settings.key};
+    const allSettings = await this.settingRepository.find({});
     const findkey = await this.settingRepository.find({
       where: where,
     });
     if (findkey.length > 0) {
       return this.settingRepository.updateAll(settings, where);
     }
-    settings.id = Math.floor(1000 + Math.random() * 9000);
-    return this.settingRepository.create(settings);
-  }
-
-  @post('/settings/netlify', {
-    responses: {
-      '200': {
-        description: 'Settings model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Setting)}},
-      },
-    },
-  })
-  async netlifyHook(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: {type: 'object'},
-        },
-      },
-    })
-    reqBody: object,
-  ): Promise<Count | Setting> {
-    const findNetlify = await this.settingRepository.find({
-      where: {key: 'netlifyHook'},
-    });
-    if (findNetlify.length > 0) {
-      return this.settingRepository.updateAll(
-        {value: reqBody},
-        {key: 'netlifyHook'},
-      );
+    if (allSettings) {
+      const maxId = allSettings.reduce((acc, value) => {
+        if (value) return acc >= value['id'] ? acc : value['id'];
+        return acc;
+      }, 0);
+      settings['id'] = maxId;
+    } else {
+      settings['id'] = 1;
     }
-    return this.settingRepository.create({
-      id: Math.floor(1000 + Math.random() * 9000),
-      key: 'netlifyHook',
-      value: reqBody,
-    } as Setting);
+    return this.settingRepository.create(settings);
   }
 
   @authenticate('BasicStrategy')

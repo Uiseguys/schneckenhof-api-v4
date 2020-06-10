@@ -53,6 +53,16 @@ export class NewsController {
     })
     news: Omit<News, 'id'>,
   ): Promise<News> {
+    const allNews = await this.newsRepository.find({});
+    if (allNews) {
+      const maxId = allNews.reduce((acc, value) => {
+        if (value['id']) return acc >= value['id'] ? acc : value['id'];
+        return acc;
+      }, 0);
+      news['id'] = maxId + 1;
+    } else {
+      news['id'] = 1;
+    }
     return this.newsRepository.create(news);
   }
 

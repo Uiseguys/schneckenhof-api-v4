@@ -5,7 +5,7 @@ export class News extends Entity {
   @property({
     type: 'number',
     id: true,
-    generated: true,
+    required: true,
   })
   id?: number;
 
