@@ -27,15 +27,16 @@ import {inject} from '@loopback/context';
 import {AuthenticationBindings, authenticate} from '@loopback/authentication';
 import {UserProfile} from '@loopback/security';
 
-const bcrypt = require('bcrypt');
-
 export class CustomUserController {
+  private bcrypt: any | object;
   constructor(
     @repository(CustomUserRepository)
     public customUserRepository: CustomUserRepository,
     @inject(AuthenticationBindings.CURRENT_USER, {optional: true})
     private customUser: UserProfile,
-  ) {}
+  ) {
+    this.bcrypt = require('bcrypt');
+  }
 
   @authenticate('BasicStrategy')
   @post('/custom-users', {
@@ -59,8 +60,8 @@ export class CustomUserController {
     })
     customUser: Omit<CustomUser, 'id'>,
   ): Promise<CustomUser> {
-    customUser.password = await bcrypt.hashSync(customUser.password, 10);
-    return await this.customUserRepository.create(customUser);
+    customUser.password = await this.bcrypt.hashSync(customUser.password, 10);
+    return this.customUserRepository.create(customUser);
   }
 
   @get('/custom-users/count', {
@@ -192,37 +193,37 @@ export class CustomUserController {
     request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ): Promise<Object> {
-    return new Promise<object>((resolve, reject) => {
-      this.customUserRepository.find(
-        {where: {email: request.body.email}},
-        function(err: any, userInstance: any) {
-          if (userInstance.length > 0) {
-            bcrypt.compare(
-              request.body.password,
-              userInstance[0].password,
-              function(err: any, match: any) {
-                if (match) {
-                  resolve(userInstance[0]);
-                } else {
-                  let msg = {
-                    error: {
-                      message: 'login failed',
-                    },
-                  };
-                  resolve(response.status(401).send(msg));
-                }
-              },
-            );
-          } else {
-            let msg = {
-              error: {
-                message: 'login failed',
-              },
-            };
-            resolve(response.status(401).send(msg));
-          }
-        },
-      );
+    const userInstance = await this.customUserRepository.find({
+      where: {email: request.body.email},
+    });
+    return new Promise((resolve, reject) => {
+      if (userInstance.length > 0) {
+        this.bcrypt.compare(
+          request.body.password,
+          userInstance[0].password,
+          function(err: any, match: any) {
+            if (match) {
+              resolve(userInstance[0]);
+            } else {
+              let msg = {
+                error: {
+                  message: 'login failed',
+                },
+              };
+              response.statusCode = 401;
+              reject(msg);
+            }
+          },
+        );
+      } else {
+        let msg = {
+          error: {
+            message: 'login failed',
+          },
+        };
+        response.statusCode = 401;
+        reject(msg);
+      }
     });
   }
 

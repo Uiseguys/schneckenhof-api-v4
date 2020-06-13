@@ -57,8 +57,13 @@ export class ResourceController {
       this.cloudinary.api.resources_by_tag(
         'wines',
         {max_results: 500},
-        (err: object | null, data: any | object | null) => {
+        (err: any | null, data: any | object | null) => {
           if (err) {
+            console.log(
+              `${new Date().toISOString()} - Error - POST REQUEST - /resources/all - ${
+                err.message
+              }`,
+            );
             reject({
               error: {
                 statusCode: 500,
@@ -81,6 +86,8 @@ export class ResourceController {
                 [],
               ),
             );
+          } else {
+            resolve([]);
           }
         },
       ),
@@ -137,18 +144,18 @@ export class ResourceController {
           });
         }
         if (!files['file']) {
-          err = new Error('No file has been uploaded');
+          const msg = 'No file has been added for upload';
           console.log(
-            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${
-              err.message
-            }`,
+            `${new Date().toISOString()} - Error - POST REQUEST - /resources/upload ${msg}`,
           );
-          reject({
-            error: {
-              statusCode: 500,
-              message: 'Internal Server Error',
-            },
-          });
+          reject(
+            res.status(400).send({
+              error: {
+                statusCode: 400,
+                message: msg,
+              },
+            }),
+          );
         }
         // Check to see if the file extension is that of an image
         if (files['file']) {
@@ -163,7 +170,6 @@ export class ResourceController {
                   '',
                 );
                 itemFilename = itemFilename.replace(/\s/g, '_');
-                console.log(itemFilename);
                 this.cloudinary.uploader.upload(
                   item.path,
                   {public_id: `wines/${itemFilename}`, tags: 'wines'},
@@ -174,13 +180,14 @@ export class ResourceController {
                           newErr.message
                         }`,
                       );
-                      res.statusCode = 500;
-                      reject({
-                        error: {
-                          statusCode: 500,
-                          message: 'Internal Server Error',
-                        },
-                      });
+                      reject(
+                        res.status(500).send({
+                          error: {
+                            statusCode: 500,
+                            message: 'Internal Server Error',
+                          },
+                        }),
+                      );
                     }
                     if (file) {
                       console.log(file);

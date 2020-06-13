@@ -191,8 +191,8 @@ export class NewsletterController {
         from: `"Schneckenhof Weingut Newsletter" <${emailSettings.from}>`,
         to: newsletter.email,
         subject: newsletterSettings.newSubscriberSubject,
-        text: `The email ${newsletter.email} has been added to your subscription list. If received by mistake unsubscribe https://newtoni-api.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}`,
-        html: `<p>Hi,<br/><br/>${newsletterSettings.newSubscriberMessage}<br/><br/><small style="display: block; margin-top: 30vh; text-align: center">Received this email by mistake <a href="https://newtoni-api.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}">unsubscribe</a></small></p>`,
+        text: `The email ${newsletter.email} has been added to your subscription list. If received by mistake unsubscribe https://schneckenhof-lb4-live.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}`,
+        html: `<p>Hi,<br/><br/>${newsletterSettings.newSubscriberMessage}<br/><br/><small style="display: block; margin-top: 30vh; text-align: center">Received this email by mistake <a href="https://schneckenhof-lb4-live.herokuapp.com/newsletters/unsubscribe/${newsletter.unsubscribe_hash}">unsubscribe</a></small></p>`,
       });
 
       console.log(
@@ -330,8 +330,8 @@ export class NewsletterController {
       subject:
         '✨ Schneckenhof Newsletter: You Have Successfully Been Unsubscribed',
       text:
-        'You are now successfully unsubscribed from Newtoni Press, if you change your mind head over to our website and resubmit your email address',
-      html: `<p>You are now successfully unsubscribed from Newtoni Press, if you change your mind head over to our website and resubmit your email address</p>`,
+        'You are now successfully unsubscribed from Schneckenhof, if you change your mind head over to our website and resubmit your email address',
+      html: `<p>You are now successfully unsubscribed from Schneckenhof, if you change your mind head over to our website and resubmit your email address</p>`,
     });
 
     console.log(
