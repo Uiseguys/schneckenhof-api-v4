@@ -184,6 +184,6 @@ export class SettingController {
       id: id,
       key: 'netlifyHook',
       value: buildHook,
-    });
+    } as Setting);
   }
 }
